@@ -1,4 +1,4 @@
-EXTRA_DIST = libzorpll.rc libzorpll.def win32_reg.cc
+EXTRA_DIST = libzorpll.rc libzorpll.def
 
 SUBDIRS = zorp
 

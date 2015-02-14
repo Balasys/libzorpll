@@ -395,15 +395,6 @@ debian/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.templates:debian/libzorpll.templat
 debian/libzorpll${LIBZORPLL_LT_RELEASE}-dev.install:debian/libzorpll-dev.install.in
 debian/rules
 debian/source/Makefile
-winbuild/Makefile
-winbuild/gensrc/Makefile
-winbuild/win32/Makefile
-winbuild/win32/vs10/Makefile
-winbuild/config.h-win32
-winbuild/libzorpll${LIBZORPLL_LT_RELEASE}-dev.files:winbuild/libzorpll-dev.files.in
-winbuild/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.files:winbuild/libzorpll.files.in
-winbuild/win32/vs10/libzorpll.vcxproj
-tgz2build/Makefile
 src/libzorpll.rc
 src/Makefile
 src/zorp/Makefile
@@ -411,10 +402,7 @@ src/zorp/zorpll/Makefile
 scripts/Makefile
 scripts/failure_notify
 src/zorp/zorpll/zorplibconfig.h
-src/zorp/zorpll/zorplibconfig.h-win32
 tests/Makefile
-tgz2build/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.files:tgz2build/libzorpll.files.in
-tgz2build/libzorpll${LIBZORPLL_LT_RELEASE}-dev.files:tgz2build/libzorpll-dev.files.in
 zorpll-${LIBZORPLL_LT_RELEASE}.pc:zorpll.pc.in],
 [chmod +x debian/rules]
 )
