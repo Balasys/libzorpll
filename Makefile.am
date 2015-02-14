@@ -1,4 +1,4 @@
-SUBDIRS = src debian tests scripts
+SUBDIRS = src tests scripts
 ACLOCAL_AMFLAGS= -I m4
 
 pkgconfigdir = $(libdir)/pkgconfig
