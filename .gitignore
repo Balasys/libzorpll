@@ -52,7 +52,6 @@ semantic.cache
 /libzorpll-*.tar.gz
 /m4
 /INSTALL
-winbuild/staging
-winbuild/win32/vs10/Debug/
-winbuild/win32/vs10/libzorpll.suo
-winbuild/win32/vs10/libzorpll.vcxproj.user
+/tgz2build
+/winbuild
+/balabit-*

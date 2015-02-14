@@ -1,5 +1,3 @@
-EXTRA_DIST = win32_reg.h zorplibconfig.h-win32  zorplibconfig.h-win32.in
-
 ZORP_H = \
 	cap.h streamssl.h log.h memtrace.h misc.h streamline.h sockaddr.h \
 	io.h ssl.h stream.h thread.h \
