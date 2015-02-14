@@ -388,17 +388,6 @@ AC_SUBST(CURRDATE)
 AC_CONFIG_FILES([
 Makefile
 dist.conf
-debian/Makefile
-debian/changelog
-debian/control
-debian/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.config:debian/libzorpll.config.in
-debian/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.install:debian/libzorpll.install.in
-debian/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.postinst:debian/libzorpll.postinst.in
-debian/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.shlibs:debian/libzorpll.shlibs.in
-debian/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.templates:debian/libzorpll.templates.in
-debian/libzorpll${LIBZORPLL_LT_RELEASE}-dev.install:debian/libzorpll-dev.install.in
-debian/rules
-debian/source/Makefile
 src/libzorpll.rc
 src/Makefile
 src/zorp/Makefile
