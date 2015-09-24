@@ -41,3 +41,15 @@ env:
     - OBS_MINOR_VERSION=0
     - OBS_MAINTENANCE_VERSION=12
     - OBS_PACKAGE=libzorpll
+    - secure: "UAR0qAxub3CA4FGQPoNxQoy9q5vAwBxzZH/KOxmXLMXHTIkWrWq1OjPWE6SbC4H7dIQYvpUWgvIQtSIFE0px4Mj4ZUzI32mgwSqG2kHvSh+5kfwpJquvGBsZhogrJ46OqSSvUixNfktIUajdvSwqXz1sJ0sFQLMx/tHS3doFD3sEzixq+UBKrDcUTXM9K4u7TM1f7vR9A5VnsBXhxzxO3eWRlXEdnjMzF3JZezMSOPmg1nIWexnaexf2ScS600WnbyGCrCkYX2nTA6i9E1pQmiZGgmag2UW7pC79BsFASVLivswAgp330JMe8quSOXHQZLmisE0o98R+tPGa734YoEzjET2N2PMz74b3QqRPSDDF534ElHs4jZifBOEtGVWmrOX5xOLBvJDBgZy+k3pL+iIWM1eavsuCaX/Rhaf525vxI1oIJ1gZ/iFAyAkEjDlo+dvfVrG1Icmcs1oUfY9BWq7aMj/k/90pJD4T6RfcLQeiJQtSY3GvBrbs8aw50ptc3xh0K6WXKw3WyAbrBwPhByBP9/oDi77oigaNm1UjNPKjucUpzl7zFEVFqwWjC2lZXKBt1/MWKfuCRJbHRrleF/VPj15wn4B1IndpGYOz/2jEh+PuP62irNyCrafg+2mWCtcw4uYpPVEVF2IjSP4Wuq6A1t/eF/pFoz+tLXy50uo="
+
+addons:
+  coverity_scan:
+    project:
+      name: "Balasys/libzorpll"
+      version: 6.0.12
+      description: "Build submitted via Travis CI"
+    notification_email: coroner@pfeifferszilard.hu
+    build_command_prepend: "autoreconf -if; ./configure"
+    build_command:   "make -j4"
+    branch_pattern: 6.0.12.0
