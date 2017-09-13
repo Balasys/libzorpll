@@ -7,9 +7,9 @@
  *
  ***************************************************************************/
 
-#include <zorp/streamgzip.h>
-#include <zorp/stream.h>
-#include <zorp/log.h>
+#include <zorpll/streamgzip.h>
+#include <zorpll/stream.h>
+#include <zorpll/log.h>
 
 #include <string.h>
 #include <errno.h>

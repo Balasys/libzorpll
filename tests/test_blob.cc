@@ -1,9 +1,9 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <zorp/blob.h>
-#include <zorp/thread.h>
-#include <zorp/log.h>
+#include <zorpll/blob.h>
+#include <zorpll/thread.h>
+#include <zorpll/log.h>
 
 #include <stdio.h>
 #include <sys/types.h>

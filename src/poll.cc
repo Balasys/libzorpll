@@ -7,11 +7,15 @@
  *
  ***************************************************************************/
 
-#include <zorp/poll.h>
-#include <zorp/stream.h>
-#include <zorp/log.h>
-#include <zorp/source.h>
-#include <zorp/error.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <zorpll/poll.h>
+#include <zorpll/stream.h>
+#include <zorpll/log.h>
+#include <zorpll/source.h>
+#include <zorpll/error.h>
 
 #include <glib.h>
 

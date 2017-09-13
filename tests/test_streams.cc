@@ -1,13 +1,13 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <zorp/stream.h>
-#include <zorp/streamfd.h>
-#include <zorp/streambuf.h>
-#include <zorp/streamline.h>
-#include <zorp/streamgzip.h>
-#include <zorp/log.h>
-#include <zorp/poll.h>
+#include <zorpll/stream.h>
+#include <zorpll/streamfd.h>
+#include <zorpll/streambuf.h>
+#include <zorpll/streamline.h>
+#include <zorpll/streamgzip.h>
+#include <zorpll/log.h>
+#include <zorpll/poll.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>

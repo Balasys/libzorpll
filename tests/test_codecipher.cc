@@ -1,7 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <zorp/code_cipher.h>
+#include <zorpll/code_cipher.h>
 #include <string.h>
 
 BOOST_AUTO_TEST_CASE(test_codecipher)

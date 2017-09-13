@@ -8,7 +8,7 @@
  ***************************************************************************/
 
 #include <glib.h>
-#include <zorp/error.h>
+#include <zorpll/error.h>
 
 #ifdef G_OS_WIN32
 /**

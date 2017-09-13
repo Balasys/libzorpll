@@ -1,7 +1,7 @@
-// #include <zorp/zorp.h>
-#include <zorp/log.h>
+// #include <zorpll/zorp.h>
+#include <zorpll/log.h>
 
-#include <zorp/code.h>
+#include <zorpll/code.h>
 
 #include <string.h>
 

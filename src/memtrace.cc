@@ -7,8 +7,12 @@
  *
  ***************************************************************************/
 
-#include <zorp/misc.h>
-#include <zorp/zorplib.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <zorpll/misc.h>
+#include <zorpll/zorplib.h>
 
 #if ZORPLIB_ENABLE_MEM_TRACE
 

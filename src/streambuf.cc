@@ -14,10 +14,10 @@
 #  include <sys/poll.h>
 #endif
 
-#include <zorp/streambuf.h>
-#include <zorp/stream.h>
-#include <zorp/log.h>
-#include <zorp/zorplib.h>
+#include <zorpll/streambuf.h>
+#include <zorpll/stream.h>
+#include <zorpll/log.h>
+#include <zorpll/zorplib.h>
 
 #include <string.h>
 #include <errno.h>
@@ -31,7 +31,7 @@
 #  include <sys/poll.h>
 #endif
 
-#include <zorp/ssl.h>
+#include <zorpll/ssl.h>
 
 /**
  * @file

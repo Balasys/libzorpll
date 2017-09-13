@@ -9,6 +9,8 @@
 
 #include <math.h>
 
+#include <zorpll/misc.h>
+
 #define FALSE 0
 #define TRUE  1
 

@@ -7,8 +7,8 @@
  *
  ***************************************************************************/
 
-#include <zorp/random.h>
-#include <zorp/log.h>
+#include <zorpll/random.h>
+#include <zorpll/log.h>
 #include <numeric>
 #include <algorithm>
 

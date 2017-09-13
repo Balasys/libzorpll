@@ -1,7 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <zorp/registry.h>
+#include <zorpll/registry.h>
 
 #include <stdio.h>
 

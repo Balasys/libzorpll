@@ -7,8 +7,8 @@
  *
  ***************************************************************************/
 
-#include <zorp/source.h>
-#include <zorp/log.h>
+#include <zorpll/source.h>
+#include <zorpll/log.h>
 
 #include <glib.h>
 

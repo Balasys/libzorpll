@@ -1,7 +1,7 @@
-// #include <zorp/zorp.h>
-#include <zorp/log.h>
+// #include <zorpll/zorp.h>
+#include <zorpll/log.h>
 
-#include <zorp/code_base64.h>
+#include <zorpll/code_base64.h>
 
 /**
  * ZCode-derived class to encode binary data to base64.

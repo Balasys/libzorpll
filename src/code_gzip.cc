@@ -1,7 +1,7 @@
-#include <zorp/code_gzip.h>
+#include <zorpll/code_gzip.h>
 
-// #include <zorp/zorp.h>
-#include <zorp/log.h>
+// #include <zorpll/zorp.h>
+#include <zorpll/log.h>
 
 #include <zlib.h>
 

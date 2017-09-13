@@ -1,8 +1,8 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <zorp/streamfd.h>
-#include <zorp/streamline.h>
+#include <zorpll/streamfd.h>
+#include <zorpll/streamline.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>

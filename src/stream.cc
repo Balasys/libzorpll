@@ -7,11 +7,11 @@
  *
  ***************************************************************************/
 
-#include <zorp/stream.h>
-#include <zorp/log.h>
-#include <zorp/error.h>
-#include <zorp/packetbuf.h>
-#include <zorp/io.h>
+#include <zorpll/stream.h>
+#include <zorpll/log.h>
+#include <zorpll/error.h>
+#include <zorpll/packetbuf.h>
+#include <zorpll/io.h>
 
 #include <string.h>
 #include <sys/types.h>

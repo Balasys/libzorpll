@@ -7,12 +7,12 @@
  *
  ***************************************************************************/
 
-#include <zorp/zcp.h>
+#include <zorpll/zcp.h>
 
 #include <stdlib.h>
 
-#include <zorp/log.h>
-#include <zorp/streamline.h>
+#include <zorpll/log.h>
+#include <zorpll/streamline.h>
 
 #define ZAS_ERROR "zas.error"
 

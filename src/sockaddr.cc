@@ -7,12 +7,16 @@
  *
  ***************************************************************************/
 
-#include <zorp/sockaddr.h>
-#include <zorp/log.h>
-#include <zorp/cap.h>
-#include <zorp/socket.h>
-#include <zorp/error.h>
-#include <zorp/random.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <zorpll/sockaddr.h>
+#include <zorpll/log.h>
+#include <zorpll/cap.h>
+#include <zorpll/socket.h>
+#include <zorpll/error.h>
+#include <zorpll/random.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -22,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <gio/gio.h>
 
 #ifndef G_OS_WIN32
 # include <netdb.h>
@@ -76,6 +81,45 @@ z_inet_aton(const gchar *buf, struct in_addr *a)
 
 /* general ZSockAddr functions */
 
+#ifdef __cplusplus
+ZSockAddr *
+z_sockaddr_new_from_string(const std::string &address, guint16 port)
+{
+  GInetAddress *inet_address;
+  ZSockAddr *sockaddr = nullptr;
+
+  inet_address = g_inet_address_new_from_string(address.c_str());
+  if (!inet_address)
+    {
+      z_log(nullptr, CORE_ERROR, 3, "Unable to parse address; address='%s'", address.c_str());
+      return nullptr;
+    }
+
+  switch (g_inet_address_get_family(inet_address))
+    {
+#ifndef G_OS_WIN32
+    case G_SOCKET_FAMILY_IPV6:
+      sockaddr = z_sockaddr_inet6_new(address.c_str(), port);
+      break;
+#endif
+    case G_SOCKET_FAMILY_IPV4:
+      sockaddr = z_sockaddr_inet_new(address.c_str(), port);
+      break;
+#ifndef G_OS_WIN32
+    case G_SOCKET_FAMILY_UNIX:
+      sockaddr = z_sockaddr_unix_new(address.c_str());
+      break;
+#endif
+    default:
+      z_log(nullptr, CORE_ERROR, 3, "Unsupported socket family in z_sockaddr_new_from_string(); address='%s'", address.c_str());
+      g_object_unref(inet_address);
+      return nullptr;
+    }
+
+  g_object_unref(inet_address);
+  return sockaddr;
+}
+#endif
 
 /**
  * General function to allocate and initialize a ZSockAddr structure,
@@ -119,6 +163,17 @@ z_sockaddr_new(struct sockaddr *sa, gsize salen)
     }
   z_return(NULL);
 }
+
+#ifdef __cplusplus
+std::string
+z_sockaddr_format_address(ZSockAddr *address)
+{
+  gchar buffer[MAX_SOCKADDR_STRING];
+  address->sa_funcs->sa_format_address(address, buffer, sizeof(buffer));
+
+  return std::string(buffer);
+}
+#endif
 
 /**
  * Format a ZSockAddr into human readable form, calls the format
@@ -251,6 +306,17 @@ z_sockaddr_inet_clone(ZSockAddr *addr, gboolean wildcard)
   return (ZSockAddr *) self;
 }
 
+static gchar *
+z_sockaddr_inet_format_address(ZSockAddr *addr, gchar *text, gulong n)
+{
+  ZSockAddrInet *self = (ZSockAddrInet *)addr;
+  char buf[32];
+
+  g_snprintf(text, n, "%s", z_inet_ntoa(buf, sizeof(buf), self->sin.sin_addr));
+
+  return text;
+}
+
 /**
  * This function is the format callback for ZSockAddrInet socket addresses
  * and returns the human readable representation of the IPv4 address.
@@ -314,6 +380,7 @@ static ZSockAddrFuncs inet_sockaddr_funcs =
   NULL,
   z_sockaddr_inet_clone,
   z_sockaddr_inet_format,
+  z_sockaddr_inet_format_address,
   z_sockaddr_inet_free,
   z_sockaddr_inet_equal
 };
@@ -546,6 +613,7 @@ static ZSockAddrFuncs inet_range_sockaddr_funcs =
   z_sockaddr_inet_range_bind,
   z_sockaddr_inet_range_clone,
   z_sockaddr_inet_format,
+  z_sockaddr_inet_format_address,
   z_sockaddr_inet_free,
   z_sockaddr_inet_equal
 };
@@ -701,6 +769,17 @@ z_sockaddr_inet6_clone(ZSockAddr *addr, gboolean wildcard)
   return (ZSockAddr *) self;
 }
 
+static gchar *
+z_sockaddr_inet6_format_address(ZSockAddr *addr, gchar *text, gulong n)
+{
+  ZSockAddrInet6 *self = (ZSockAddrInet6 *)addr;
+  char buf[64];
+
+  inet_ntop(AF_INET6, &self->sin6.sin6_addr, buf, sizeof(buf));
+  g_snprintf(text, n, "%s", buf);
+
+  return text;
+}
 
 /**
  * Format an IPv6 address into human readable form.
@@ -763,6 +842,7 @@ static ZSockAddrFuncs inet6_sockaddr_funcs =
   NULL,
   z_sockaddr_inet6_clone,
   z_sockaddr_inet6_format,
+  z_sockaddr_inet6_format_address,
   z_sockaddr_inet6_free,
   z_sockaddr_inet6_equal
 };
@@ -776,7 +856,7 @@ static ZSockAddrFuncs inet6_sockaddr_funcs =
  * @returns ZSockAddrInet6 instance
  **/
 ZSockAddr *
-z_sockaddr_inet6_new(gchar *ip, guint16 port)
+z_sockaddr_inet6_new(const gchar *ip, guint16 port)
 {
   ZSockAddrInet6 *addr = g_new0(ZSockAddrInet6, 1);
 
@@ -846,6 +926,7 @@ typedef struct _ZSockAddrUnix
 } ZSockAddrUnix;
 
 static GIOStatus z_sockaddr_unix_bind_prepare(int sock, ZSockAddr *addr, guint32 sock_flags);
+static gchar *z_sockaddr_unix_format_address(ZSockAddr *addr, gchar *text, gulong n);
 static gchar *z_sockaddr_unix_format(ZSockAddr *addr, gchar *text, gulong n);
 
 /**
@@ -897,6 +978,7 @@ static ZSockAddrFuncs unix_sockaddr_funcs =
   NULL,
   z_sockaddr_unix_clone,
   z_sockaddr_unix_format,
+  z_sockaddr_unix_format_address,
   NULL,
   z_sockaddr_unix_equal
 };
@@ -1005,6 +1087,17 @@ z_sockaddr_unix_bind_prepare(int sock G_GNUC_UNUSED, ZSockAddr *addr, guint32 so
   
   unlink(self->saun.sun_path);  
   return G_IO_STATUS_NORMAL;
+}
+
+static gchar *
+z_sockaddr_unix_format_address(ZSockAddr *addr, gchar *text, gulong n)
+{
+  ZSockAddrUnix *self = (ZSockAddrUnix *) addr;
+
+  g_snprintf(text, n, "%s", 
+             self->salen > 2 && self->saun.sun_path[0] ? 
+             self->saun.sun_path : "anonymous");
+  return text;
 }
 
 /**

@@ -11,7 +11,7 @@
 #include <glib.h>
 #ifdef G_OS_WIN32
 
-#include <zorp/win32_reg.h>
+#include <zorpll/win32_reg.h>
 #include <string.h>
 
 #include <windows.h>

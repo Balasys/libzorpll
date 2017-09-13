@@ -8,8 +8,12 @@
  ***************************************************************************/
 
 
-#include <zorp/stackdump.h>
-#include <zorp/log.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <zorpll/stackdump.h>
+#include <zorpll/log.h>
 
 #include <signal.h>
 #ifdef HAVE_UNISTD_H

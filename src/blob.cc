@@ -7,9 +7,13 @@
  *
  ***************************************************************************/
 
-#include <zorp/blob.h>
-#include <zorp/log.h>
-#include <zorp/process.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <zorpll/blob.h>
+#include <zorpll/log.h>
+#include <zorpll/process.h>
 
 #include <stdlib.h>
 #include <sys/types.h>
@@ -1283,6 +1287,104 @@ z_blob_free_ptr(ZBlob *self, gchar *data)
 }
 
 /**
+ * Write data from a buffer into a blob.
+ *
+ * @param[in]  self this
+ * @param[in]  buffer buffer to read from
+ * @param[in]  write_pos position to write to
+ * @param[in]  timeout timeout
+ *
+ * Write some data into the given position of the blob, expanding it if
+ * necessary. The function takes multiple passes and supports copying gint64
+ * chunks and ensures that all the requested data be copied unless an error
+ * occurs, thus there is no bytes_read argument.
+ *
+ * @returns GLib I/O status
+ **/
+
+GIOStatus
+z_blob_read_from_buffer(ZBlob *self, const std::vector<unsigned char> &buffer, std::size_t write_pos, gint timeout)
+{
+  g_assert(self);
+  g_assert(write_pos >= 0);
+
+  if (!z_blob_lock(self, timeout))
+    return G_IO_STATUS_ERROR;
+
+  std::size_t left = buffer.size();
+  std::size_t read_pos = 0;
+  if (self->is_in_file)
+    {
+      if (self->size < write_pos)
+        z_blob_alloc(self, write_pos);
+
+      off_t err = lseek(self->fd, write_pos, SEEK_SET);
+      if (err < 0)
+        {
+          z_log(NULL, CORE_ERROR, 0, "Blob error, lseek() failed; file='%s', error='%s'", self->filename, g_strerror(errno));
+          g_assert(0);
+        }
+
+      while (left != 0)
+        {
+          std::size_t bytes = MIN(left, Z_BLOB_COPY_BUFSIZE);
+
+          if (self->alloc_size < (write_pos + bytes))
+            z_blob_alloc(self, write_pos + bytes);
+
+          left -= bytes;
+          write_pos += bytes;
+          if (self->size < write_pos)
+            self->size = write_pos;
+
+          std::size_t remain = bytes;
+          while (remain > 0)
+            {
+              std::size_t bw = write(self->fd, buffer.data() + read_pos, remain);
+              if (bw < 0)
+                {
+                  if (errno == EINTR)
+                    {
+                      continue;
+                    }
+                  else
+                    {
+                      z_log(NULL, CORE_ERROR, 0, "Blob error, write() failed; file='%s', error='%s'", self->filename, g_strerror(errno));
+                      g_assert(0);
+                    }
+                }
+              remain -= bw;
+              read_pos += bw;
+            }
+        }
+    }
+  else
+    {
+      while (left != 0)
+        {
+          std::size_t bytes = MIN(left, Z_BLOB_COPY_BUFSIZE);
+          if (self->alloc_size < (write_pos + bytes))
+            z_blob_alloc(self, write_pos + buffer.size());
+
+          std::copy(buffer.data() + read_pos, buffer.data() + read_pos + bytes, self->data + write_pos);
+          left -= bytes;
+          write_pos += bytes;
+          read_pos += bytes;
+          if (self->size < write_pos)
+            self->size = write_pos;
+        }
+    }
+
+  self->stat.req_wr++;
+  self->stat.total_wr += buffer.size();
+  self->stat.last_accessed = time(NULL);
+
+  z_blob_unlock(self);
+
+  return G_IO_STATUS_NORMAL;
+}
+
+/**
  * Write data read from a stream into a blob.
  *
  * @param[in]  self this
@@ -1410,6 +1512,35 @@ z_blob_read_from_stream(ZBlob *self, gint64 pos, ZStream *stream, gint64 count, 
   if (local_error)
     g_propagate_error(error, local_error);
   z_return(res);
+}
+
+GIOStatus z_blob_write_to_buffer(ZBlob *self, std::vector<unsigned char> &buffer, std::size_t read_count, std::size_t read_pos, gint timeout)
+{
+  g_assert(self);
+  g_assert(read_pos >= 0);
+
+  std::size_t end_pos = read_pos + read_count;
+  std::size_t write_pos = 0;
+  if (buffer.capacity() < read_count)
+    buffer.resize(read_count);
+  while (read_pos < end_pos)
+    {
+      gsize mapped_pos, bw;
+      gchar *d;
+
+      std::size_t mapped_length = MIN(Z_BLOB_COPY_BUFSIZE, end_pos - read_pos);
+      d = z_blob_get_ptr(self, read_pos, &mapped_length, timeout);
+      if (!d)
+        {
+          return G_IO_STATUS_ERROR;
+        }
+      std::copy(d, d + mapped_length, buffer.data() + write_pos);
+      z_blob_free_ptr(self, d);
+      read_pos += mapped_length;
+      write_pos += mapped_length;
+    }
+
+  return G_IO_STATUS_NORMAL;
 }
 
 /**

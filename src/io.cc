@@ -7,10 +7,14 @@
  *
  ***************************************************************************/
 
-#include <zorp/io.h>
-#include <zorp/log.h>
-#include <zorp/cap.h>
-#include <zorp/error.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <zorpll/io.h>
+#include <zorpll/log.h>
+#include <zorpll/cap.h>
+#include <zorpll/error.h>
 
 #include <sys/types.h>
 #ifdef HAVE_UNISTD_H

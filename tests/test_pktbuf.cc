@@ -1,7 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <zorp/packetbuf.h>
+#include <zorpll/packetbuf.h>
 #include <glib.h>
 #include <string.h>
 

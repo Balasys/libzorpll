@@ -1,0 +1,2 @@
+lib/*.lib
+include/zorp-6.0/zorpll/*h

@@ -1,9 +1,9 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <zorp/listen.h>
-#include <zorp/connect.h>
-#include <zorp/sockaddr.h>
+#include <zorpll/listen.h>
+#include <zorpll/connect.h>
+#include <zorpll/sockaddr.h>
 
 #include <stdio.h>
 

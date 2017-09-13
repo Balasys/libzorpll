@@ -1,4 +1,0 @@
-debug-package-should-be-named-dbg
-#The above warning is not apply here because this package is not
-#contains the detached debug symbols, but a recompiled so, with
-#a special compile options.

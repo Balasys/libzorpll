@@ -1,40 +1,26 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl
 dnl There are a couple of environment defined variables which this script
-dnl makes use of in addition to the standard CFLAGS/LDFLAGS/etc. These are:
+dnl makes use of in addition to the standard CXXFLAGS/LDFLAGS/etc. These are:
 dnl
 dnl RELEASE_TAG        - Debian release tag which is put to debian/changelog
 dnl SNAPSHOT_VERSION   - snapshot version to add to version number
 dnl SOURCE_REVISION    - Revision of the source-tree, will added to the version string
 dnl
-AC_INIT(src/log.cc)
-m4_include(ax_cxx_compile_stdcxx_11.m4)
 
-dnl ***************************************************************************
-dnl Definitions
-
-PACKAGE=libzorpll
-VERSION=`cat $srcdir/VERSION`
+AC_INIT([libzorpll], m4_esyscmd([tr -d '\n' < VERSION]))
+AM_INIT_AUTOMAKE([foreign])
+AC_CONFIG_SRCDIR([src/log.cc])
 
 dnl ***************************************************************************
 dnl Dependencies
 
 LIBGLIB_MIN_VERSION=2.32.0
 OPENSSL_MIN_VERSION=1.0.1
+OPENSSL_MAX_VERSION="1.1.1"
 
 dnl ***************************************************************************
 dnl Initial setup
-
-# We want an absolute path to the source-dir.
-case "$srcdir" in
-    /*)
-        top_srcdir=$srcdir
-        ;;
-    *)
-        oldsrcdir="$srcdir"
-        top_srcdir="`cd \"$srcdir\"; pwd`"
-        ;;
-esac
 
 if test -r $srcdir/dist.conf; then
 	# read defaults, dist.conf does not change
@@ -53,21 +39,12 @@ if test -z "$RELEASE_TAG"; then
 	RELEASE_TAG=zorp30dbg
 fi
 
-if test -z "$libexecdir" || test "x${libexecdir}" = "xNONE"; then
-        libexecdir=${libdir}/libzorpll
-fi
-
-AM_INIT_AUTOMAKE($PACKAGE, $VERSION, no-define)
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 ZORPLIBLL_VERSION=$VERSION
 
-AM_CONFIG_HEADER(src/zorp/zorplibconfig.h)
+AC_CONFIG_HEADERS([config.h])
 
 dnl check for arguments
-AC_ARG_ENABLE(debug,
-              [  --enable-debug       Enable debug information & messages (default: no)],,
-              enable_debug=no)
-
 AC_ARG_ENABLE(trace,
               [  --enable-trace       Enable trace information & messages (default: no)],,
               enable_trace=no)
@@ -95,35 +72,15 @@ AC_ARG_ENABLE(tos,
 dnl ***************************************************************************
 dnl Argument processing which might affect detection
 
-if test "x$enable_debug" = "xyes"; then
-  CFLAGS="$CFLAGS -O0"
-else
-  CFLAGS="$CFLAGS -O2"
-fi
-
 dnl Checks for programs.
-AC_PROG_CC
 AC_PROG_CXX
-AX_CXX_COMPILE_STDCXX_11(noext)
-AC_PROG_CPP
 AC_PROG_CXXCPP
 
-AC_LANG_PUSH([C++])
-AC_COMPILE_IFELSE([AC_LANG_SOURCE(
-  [[template <typename T>
-    struct check {
-      static_assert(sizeof(int) <= sizeof(T), "not big enough");
-    };
+AC_PROG_MKDIR_P
 
-    typedef check<check<bool>> right_angle_brackets;
+AX_CXX_COMPILE_STDCXX_11([noext], [mandatory])
 
-    int a;
-    decltype(a) b;
-
-    typedef check<int> check_type;
-    check_type c;
-    check_type&& cr = static_cast<check_type&&>(c);]])],,
-  AC_MSG_FAILURE(['$CXX $CXXFLAGS' does not accept full ISO C++11]))
+AC_LANG(C++)
 
 AM_PROG_LIBTOOL
 
@@ -143,13 +100,9 @@ AC_TYPE_SIZE_T
 AC_TYPE_UID_T
 AC_STRUCT_TM
 
-PKG_CHECK_MODULES(OPENSSL, openssl >= $OPENSSL_MIN_VERSION,,
-        AC_MSG_ERROR(Cannot find OpenSSL library version >= $OPENSSL_MIN_VERSION: is pkg-config in path?))
-
-save_CXXFLAGS=$CXXFLAGS
-CXXFLAGS="$CXXFLAGS $OPENSSL_CFLAGS"
-AC_CHECK_HEADER(openssl/ssl.h, [], [AC_MSG_ERROR([OpenSSL header file <openssl/ssl.h> is missing])])
-CXXFLAGS=$save_CXXFLAGS
+PKG_CHECK_MODULES(OPENSSL, [openssl >= $OPENSSL_MIN_VERSION openssl < $OPENSSL_MAX_VERSION],,
+        AC_MSG_ERROR(Cannot find OpenSSL library $OPENSSL_MIN_VERSION <= version < $OPENSSL_MAX_VERSION: is pkg-config in path?)
+)
 
 if test "x$ac_cv_header_openssl_des_h" = "xno"; then
 	AC_ERROR(OpenSSL headers required)
@@ -221,7 +174,6 @@ dnl ***************************************************************************
 dnl Checks for library functions.
 
 AC_FUNC_ALLOCA
-AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MEMCMP
 AC_FUNC_STRFTIME
 
@@ -244,6 +196,9 @@ PKG_CHECK_MODULES(GLIB, glib-2.0 >= $LIBGLIB_MIN_VERSION,,
 
 PKG_CHECK_MODULES(GTHREAD, gthread-2.0 >= $LIBGLIB_MIN_VERSION,,
 	AC_MSG_ERROR(Cannot find Gthread library version >= $LIBGLIB_MIN_VERSION: is pkg-config in path?))
+
+PKG_CHECK_MODULES(GIO, gio-2.0 >= $LIBGLIB_MIN_VERSION,,
+	AC_MSG_ERROR(Cannot find Gio library version >= $LIBGLIB_MIN_VERSION: is pkg-config in path?))
 
 dnl AM_PATH_GLIB_2_0($GLIB_MIN_VERSION,,
 dnl    AC_MSG_ERROR(Cannot find GLIB version >= $GLIB_MIN_VERSION: is pkg-config in path?), gthread)
@@ -289,20 +244,9 @@ if test "x$enable_stackdump" = "xauto"; then
         fi
 fi
 
-save_LIBS="$LIBS"
-LIBS="$LIBS $OPENSSL_LIBS"
 if test "x$enable_ssl_engine" = "xauto"; then
-	AC_CHECK_FUNC(ENGINE_by_id)
-	AC_MSG_CHECKING(whether to enable SSL crypto engine support)
-	if test "x$ac_cv_func_ENGINE_by_id" = "xyes"; then
-		AC_MSG_RESULT(yes)
-		enable_ssl_engine=yes
-	else
-		AC_MSG_RESULT(no)
-		enable_ssl_engine=no
-	fi
+	AC_CHECK_LIB(crypto, ENGINE_by_id, enable_ssl_engine=yes, enable_ssl_engine=no)
 fi
-LIBS=$save_LIBS
 
 if test "x$enable_tos" = "xauto"; then
 	AC_MSG_CHECKING(whether to enable ToS manipulation support)
@@ -348,46 +292,23 @@ LIBZORPLL_LT_AGE="$VERSION_AGE"
 
 ZORPLIBLL_WIN_VERSION="$VERSION_MAJOR,$VERSION_MINOR,$VERSION_COMPAT,$VERSION_AGE"
 
-set -x 
-if test -z "${exec_prefix}" -o "x${exec_prefix}" = "xNONE"; then
-        exec_prefix="${prefix}"
-fi
-
-set -x
-expand_recursive()
-{
-  expd=`eval echo $1`
-
-  if test "$1" = "$expd";
-  then 
-    echo $expd;
-  else
-    expand_recursive $expd
-  fi;
-} 
-
-libexecdir="`expand_recursive ${libexecdir}`"
-sysconfdir="`expand_recursive ${sysconfdir}`"
-
-ZORPLIB_PIDFILE_DIR="`eval echo ${localstatedir}/run/zorp`"
-ZORPLIB_TEMP_DIR="`eval echo ${localstatedir}/lib/zorp/tmp`"
-
-set +x
+ZORPLIB_LIBEXECDIR="$libexecdir/libzorpll"
+ZORPLIB_PIDFILE_DIR="${localstatedir}/run/zorp"
+ZORPLIB_TEMP_DIR="${localstatedir}/lib/zorp/tmp"
 
 AC_DEFINE_UNQUOTED(ZORPLIBLL_PACKAGE, "$PACKAGE", [Zorp low level library package name] )
 AC_DEFINE_UNQUOTED(ZORPLIBLL_VERSION, "$ZORPLIBLL_VERSION", [Zorp low level library version] )
 AC_DEFINE_UNQUOTED(ZORPLIBLL_REVISION, "$SOURCE_REVISION", [Zorp low level library, source revision])
-AC_DEFINE_UNQUOTED(ZORPLIB_ENABLE_DEBUG, `enable_value $enable_debug`, [enable debug])
-AC_DEFINE_UNQUOTED(ZORPLIB_ENABLE_TRACE, `enable_value $enable_trace`, [enable trace])
-AC_DEFINE_UNQUOTED(ZORPLIB_ENABLE_MEM_TRACE, `enable_value $enable_mem_trace`, [enable memtrace])
-AC_DEFINE_UNQUOTED(ZORPLIB_ENABLE_CAPS, `enable_value $enable_caps`, [enable caps])
-AC_DEFINE_UNQUOTED(ZORPLIB_ENABLE_SSL_ENGINE, `enable_value $enable_ssl_engine`, [enable ssl engine])
-AC_DEFINE_UNQUOTED(ZORPLIB_ENABLE_STACKDUMP, `enable_value $enable_stackdump`, [enable stack dump])
-AC_DEFINE_UNQUOTED(ZORPLIB_ENABLE_TOS, `enable_value $enable_tos`, [enable ToS manipulation])
-AC_DEFINE_UNQUOTED(ZORPLIB_PIDFILE_DIR, "$ZORPLIB_PIDFILE_DIR", [default PID file directory])
-AC_DEFINE_UNQUOTED(ZORPLIB_LIBEXECDIR, "`eval echo ${libexecdir}`", [libexecdir])
 AC_DEFINE_UNQUOTED(ZORPLIB_COMPAT_BRANCH,"`eval echo ${LIBZORPLL_LT_COMPAT_BRANCH}`", [Binary compatibility version])
-AC_DEFINE_UNQUOTED(ZORPLIB_TEMP_DIR, "$ZORPLIB_TEMP_DIR", [default temporary directory])
+
+ZORPLIB_ENABLE_DEBUG=`enable_value $enable_debug`
+ZORPLIB_ENABLE_TRACE=`enable_value $enable_trace`
+ZORPLIB_ENABLE_MEM_TRACE=`enable_value $enable_mem_trace`
+ZORPLIB_ENABLE_STACKDUMP=`enable_value $enable_stackdump`
+
+ZORPLIB_ENABLE_CAPS=`enable_value $enable_caps`
+ZORPLIB_ENABLE_SSL_ENGINE=`enable_value $enable_ssl_engine`
+ZORPLIB_ENABLE_TOS=`enable_value $enable_tos`
 
 cat <<EOF
 
@@ -404,17 +325,21 @@ tos: $enable_tos
 
 EOF
 
-CFLAGS="$CFLAGS -D_GNU_SOURCE -Wall -Wshadow -W -Wstrict-prototypes -Werror-implicit-function-declaration -Wpointer-arith -g"
+DIRECTORY_CXXFLAGS="-DZORPLIB_PIDFILE_DIR=\\\"${ZORPLIB_PIDFILE_DIR}\\\" -DZORPLIB_TEMP_DIR=\\\"${ZORPLIB_TEMP_DIR}\\\" -DZORPLIB_LIBEXECDIR=\\\"${ZORPLIB_LIBEXECDIR}\\\""
+WARNING_CXXFLAGS="-Wall -Wshadow -W -Werror-implicit-function-declaration -Wpointer-arith"
+DEPS_CXXFLAGS="$GLIB_CFLAGS $GTHREAD_CFLAGS $GIO_CFLAGS $OPENSSL_CFLAGS"
+LOCAL_CXXFLAGS='-I$(top_srcdir)/src/zorp -I$(top_builddir)/src/zorp'
+REGULAR_CXXFLAGS="-std=c++11 $WARNING_CXXFLAGS $DIRECTORY_CXXFLAGS $DEPS_CXXFLAGS $LOCAL_CXXFLAGS"
 
-DEPS_CXXFLAGS="$CXXFLAGS $GLIB_CFLAGS $GTHREAD_CFLAGS $OPENSSL_CFLAGS"
-CXXFLAGS="-I$top_srcdir/lib -I$top_srcdir $DEPS_CXXFLAGS"
-OPENSSL_CPPFLAGS="$OPENSSL_CFLAGS"
-DEPS_LIBS="$LIBS $GLIB_LIBS $GTHREAD_LIBS $OPENSSL_LIBS"
-LIBS="$ZORP_LIBS $DEPS_LIBS"
+DEPS_LIBS="$GLIB_LIBS $GTHREAD_LIBS $GIO_LIBS $OPENSSL_LIBS -DOPENSSL_NO_DEPRECATED -DOPENSSL_API_COMPAT=0x10100000L"
+REGULAR_LDFLAGS="$DEPS_LIBS"
 
 AC_SUBST(SNAPSHOT_VERSION)
 AC_SUBST(RELEASE_TAG)
 AC_SUBST(SOURCE_REVISION)
+AC_SUBST(LIBGLIB_MIN_VERSION)
+AC_SUBST(OPENSSL_MIN_VERSION)
+AC_SUBST(OPENSSL_MAX_VERSION)
 AC_SUBST(ZORPLIBLL_VERSION)
 AC_SUBST(ZORPLIBLL_WIN_VERSION)
 
@@ -424,27 +349,57 @@ AC_SUBST(LIBZORPLL_LT_COMPAT_BRANCH)
 AC_SUBST(LIBZORPLL_LT_COMPAT_PL)
 AC_SUBST(LIBZORPLL_LT_AGE)
 
-AC_SUBST(OPENSSL_CFLAGS)
-AC_SUBST(OPENSSL_CPPFLAGS)
-AC_SUBST(DEPS_CXXFLAGS)
-AC_SUBST(DEPS_LIBS)
-AC_SUBST(ZORP_LIBS)
+AC_SUBST(REGULAR_CXXFLAGS)
+AC_SUBST(REGULAR_LDFLAGS)
 
 AC_SUBST(ZORPLIB_PIDFILE_DIR)
 AC_SUBST(ZORPLIB_TEMP_DIR)
 
-AC_OUTPUT(
+AC_SUBST(ZORPLIB_ENABLE_DEBUG)
+AC_SUBST(ZORPLIB_ENABLE_TRACE)
+AC_SUBST(ZORPLIB_ENABLE_MEM_TRACE)
+AC_SUBST(ZORPLIB_ENABLE_STACKDUMP)
+
+AC_SUBST(ZORPLIB_ENABLE_CAPS)
+AC_SUBST(ZORPLIB_ENABLE_SSL_ENGINE)
+AC_SUBST(ZORPLIB_ENABLE_TOS)
+
+AC_CONFIG_FILES([
 Makefile
 dist.conf
 debian/Makefile
+debian/changelog
+debian/control
+debian/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.config:debian/libzorpll.config.in
+debian/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.install:debian/libzorpll.install.in
+debian/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.postinst:debian/libzorpll.postinst.in
+debian/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.shlibs:debian/libzorpll.shlibs.in
+debian/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.templates:debian/libzorpll.templates.in
+debian/libzorpll${LIBZORPLL_LT_RELEASE}-dev.install:debian/libzorpll-dev.install.in
+debian/rules
+debian/source/Makefile
 winbuild/Makefile
+winbuild/gensrc/Makefile
+winbuild/win32/Makefile
+winbuild/win32/vs10/Makefile
+winbuild/config.h-win32
+winbuild/libzorpll${LIBZORPLL_LT_RELEASE}-dev.files:winbuild/libzorpll-dev.files.in
+winbuild/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.files:winbuild/libzorpll.files.in
+winbuild/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}-dbg.files:winbuild/libzorpll-dbg.files.in
+winbuild/win32/vs10/libzorpll.vcxproj
 tgz2build/Makefile
 src/libzorpll.rc
 src/Makefile
 src/zorp/Makefile
+src/zorp/zorpll/Makefile
 scripts/Makefile
 scripts/failure_notify
-src/zorp/zorplibconfig.h-win32
+src/zorp/zorpll/zorplibconfig.h
+src/zorp/zorpll/zorplibconfig.h-win32
 tests/Makefile
-zorplibll.pc
+tgz2build/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.files:tgz2build/libzorpll.files.in
+tgz2build/libzorpll${LIBZORPLL_LT_RELEASE}-dev.files:tgz2build/libzorpll-dev.files.in
+zorpll-${LIBZORPLL_LT_RELEASE}.pc:zorpll.pc.in],
+[chmod +x debian/rules]
 )
+AC_OUTPUT

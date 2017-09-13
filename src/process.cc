@@ -7,11 +7,15 @@
  *
  ***************************************************************************/
 
-#include <zorp/process.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <zorpll/process.h>
  
 #ifndef G_OS_WIN32
 
-#include <zorp/cap.h>
+#include <zorpll/cap.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -32,7 +36,7 @@
 #include <pwd.h>
 #include <grp.h>
 
-#include <zorp/misc.h>
+#include <zorpll/misc.h>
 
 #if HAVE_SYS_PRCTL_H
 #  include <sys/prctl.h>
@@ -182,6 +186,7 @@ static struct
   const gchar *pidfile_dir;
   const gchar *cwd;
   const gchar *caps;
+  gboolean nocaps;
   gchar *argv_orig;
   gboolean core;
 } process_opts =
@@ -730,7 +735,7 @@ z_process_change_user(void)
   gid_t gid = -1;
   
 #if HAVE_PRCTL && HAVE_PR_SET_KEEPCAPS
-  if (process_opts.caps)
+  if (process_opts.caps && !process_opts.nocaps)
     prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
 #endif
 
@@ -787,7 +792,7 @@ static gboolean
 z_process_change_caps(void)
 {
 #if ZORPLIB_ENABLE_CAPS
-  if (process_opts.caps)
+  if (process_opts.caps && !process_opts.nocaps)
     {
       cap_t cap = cap_from_text(process_opts.caps);
 
@@ -1435,7 +1440,7 @@ static GOptionEntry z_process_option_entries[] =
   { "gid",            0,  G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_STRING,   &process_opts.group,             NULL, NULL },
   { "chroot",       'R',                     0, G_OPTION_ARG_STRING,   &process_opts.chroot_dir,        "Chroot to this directory", "<dir>" },
   { "caps",         'C',                     0, G_OPTION_ARG_STRING,   &process_opts.caps,              "Set default capability set", "<capspec>" },
-  { "no-caps",      'N', G_OPTION_FLAG_REVERSE, G_OPTION_ARG_NONE,     &process_opts.caps,              "Disable managing Linux capabilities", NULL },
+  { "no-caps",      'N',                     0, G_OPTION_ARG_NONE,     &process_opts.nocaps,            "Disable managing Linux capabilities", NULL },
   { "pidfile",      'P',                     0, G_OPTION_ARG_STRING,   &process_opts.pidfile,           "Set path to pid file", "<pidfile>" },
   { "enable-core",    0,                     0, G_OPTION_ARG_NONE,     &process_opts.core,              "Enable dumping core files", NULL },
   { "fd-limit-min",       0,                  0, G_OPTION_ARG_INT,      &process_opts.fd_limit_min,      "The minimum required number of fds", NULL },

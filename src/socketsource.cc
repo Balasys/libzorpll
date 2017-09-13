@@ -7,9 +7,9 @@
  *
  ***************************************************************************/
 
-#include <zorp/socketsource.h>
-#include <zorp/log.h>
-#include <zorp/error.h>
+#include <zorpll/socketsource.h>
+#include <zorpll/log.h>
+#include <zorpll/error.h>
 
 #ifdef G_OS_WIN32
 #  include <winsock2.h>

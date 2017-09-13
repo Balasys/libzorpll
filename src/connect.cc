@@ -7,13 +7,17 @@
  *
  ***************************************************************************/
 
-#include <zorp/connect.h>
-#include <zorp/io.h>
-#include <zorp/log.h>
-#include <zorp/socketsource.h>
-#include <zorp/socket.h>
-#include <zorp/error.h>
-#include <zorp/streamfd.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <zorpll/connect.h>
+#include <zorpll/io.h>
+#include <zorpll/log.h>
+#include <zorpll/socketsource.h>
+#include <zorpll/socket.h>
+#include <zorpll/error.h>
+#include <zorpll/streamfd.h>
 
 #include <sys/types.h>
 #ifdef HAVE_UNISTD_H

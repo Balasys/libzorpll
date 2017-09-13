@@ -3,12 +3,12 @@ Section: libs
 Priority: optional
 Maintainer: BalaBit Development Team <devel@balabit.hu>
 Standards-Version: 3.8.4
-Build-Depends: libssl-dev (>= 1.0.1), libglib2.0-dev, debhelper (>= 7), libcap-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], zlib1g-dev, binutils (>= 2.14.90.0.7), libboost-test-dev, autoconf, automake, libtool
+Build-Depends: libssl1.0-dev (>= 1.0.1) | libssl-dev (<< 1.1.1), libglib2.0-dev (>= 2.32.0), debhelper (>= 9), dh-autoreconf, libcap-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], zlib1g-dev, binutils (>= 2.14.90.0.7), libboost-test-dev, autoconf, autoconf-archive, automake, libtool
 
-Package: libzorpll6.0-10
+Package: libzorpll6.0-11
 Section: libs
 Architecture: any
-Provides: virtual-libzorpll6.0-10
+Provides: virtual-libzorpll6.0-11
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Conflicts: libzorpll
 Description: Low level library functions for Zorp
@@ -20,10 +20,12 @@ Description: Low level library functions for Zorp
  This package contains low level library functions needed by Zorp and
  associated programs.
 
-Package: libzorpll-dev
+Package: libzorpll6.0-dev
 Section: libdevel
 Architecture: any
-Depends: libzorpll6.0-10 (>= ${binary:Version}), ${misc:Depends}, libglib2.0-dev, libcap-dev [linux-any], libssl-dev
+Depends: libzorpll6.0-11 (>= ${binary:Version}), ${misc:Depends}, libglib2.0-dev (>= 2.32.0), libcap-dev [linux-any], libssl1.0-dev (>= 1.0.1) | libssl-dev (<< 1.1.1)
+Conflicts: libzorpll-dev
+Replaces: libzorpll-dev
 Description: Low level library functions for Zorp, development files
  Zorp is a new generation firewall. It is essentially a transparent proxy
  firewall, with strict protocol analyzing proxies, a modular architecture,
@@ -33,24 +35,24 @@ Description: Low level library functions for Zorp, development files
  This package contains the development files necessary to create programs
  based on libzorpll.
 
-Package: libzorpll6.0-10-dbg
+Package: libzorpll6.0-11-dbg
 Section: debug
 Architecture: any
 Priority: extra
-Depends: libzorpll6.0-10 (= ${binary:Version}), ${misc:Depends}
+Depends: libzorpll6.0-11 (= ${binary:Version}), ${misc:Depends}
 Description: Low level library functions for Zorp, debug version
  Zorp is a new generation firewall. It is essentially a transparent proxy
  firewall, with strict protocol analyzing proxies, a modular architecture,
  and fine-grained control over the mediated traffic. Configuration decisions
  are scriptable with the Python based configuration language.
  .
- This package contains the debugging symbols for libzorpll6.0-10.
+ This package contains the debugging symbols for libzorpll6.0-11.
 
-Package: libzorpll6.0-10-memtrace
+Package: libzorpll6.0-11-memtrace
 Section: debug
 Architecture: any
 Priority: extra
-Depends: libzorpll6.0-10 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Depends: libzorpll6.0-11 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Low level library functions for Zorp, debug version
  Zorp is a new generation firewall. It is essentially a transparent proxy
  firewall, with strict protocol analyzing proxies, a modular architecture,

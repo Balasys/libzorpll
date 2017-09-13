@@ -1,7 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <zorp/code_gzip.h>
+#include <zorpll/code_gzip.h>
 #include <stdlib.h>
 
 #include <stdio.h>

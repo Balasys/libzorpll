@@ -1,7 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <zorp/sockaddr.h>
+#include <zorpll/sockaddr.h>
 #include <stdio.h>
 #include <stdlib.h>
 

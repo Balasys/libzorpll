@@ -7,9 +7,13 @@
  *
  ***************************************************************************/
 
-#include <zorp/zorplib.h>
-#include <zorp/misc.h>
-#include <zorp/log.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <zorpll/zorplib.h>
+#include <zorpll/misc.h>
+#include <zorpll/log.h>
 
 #include <string.h>
 #include <stdlib.h>
@@ -563,14 +567,13 @@ z_libzorpll_version_info(void)
   g_snprintf(buf, sizeof(buf),
              "libzorpll %s\n"
              "Revision: %s\n"
-             "Compile-Date: %s %s\n"
              "Trace: %s\n"
              "MemTrace: %s\n"
              "Caps: %s\n"
              "Debug: %s\n"
              "StackDump: %s\n",
 
-             ZORPLIBLL_VERSION, ZORPLIBLL_REVISION, __DATE__, __TIME__,
+             ZORPLIBLL_VERSION, ZORPLIBLL_REVISION,
              ON_OFF_STR(ZORPLIB_ENABLE_TRACE),
              ON_OFF_STR(ZORPLIB_ENABLE_MEM_TRACE),
              ON_OFF_STR(ZORPLIB_ENABLE_CAPS),
@@ -607,7 +610,6 @@ z_libzorpll_add_option_groups(GOptionContext *ctx, guint disable_groups)
     z_log_add_option_group(ctx);
 }
 
-#ifndef HAVE_LOCALTIME_R
 /**
  * localtime_r replacement in case we don't have one.
  *
@@ -619,14 +621,17 @@ z_libzorpll_add_option_groups(GOptionContext *ctx, guint disable_groups)
  * @returns a pointer to result
  **/
 struct tm *
-localtime_r(const time_t *timep, struct tm *result)
+z_localtime_r(const time_t *timep, struct tm *result)
 {
+#ifdef HAVE_LOCALTIME_R
+  return localtime_r(timep, result);
+#else
   static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 
   g_static_mutex_lock (&mutex);
   memcpy(result, localtime(timep), sizeof(struct tm));
   g_static_mutex_unlock (&mutex);
   return result;
-}
 #endif
+}
 

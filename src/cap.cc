@@ -8,9 +8,9 @@
  *
  ***************************************************************************/
 
-#include <zorp/zorplib.h>
-#include <zorp/cap.h>
-#include <zorp/log.h>
+#include <zorpll/zorplib.h>
+#include <zorpll/cap.h>
+#include <zorpll/log.h>
 
 #if ZORPLIB_ENABLE_CAPS
 

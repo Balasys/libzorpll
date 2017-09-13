@@ -12,9 +12,13 @@
  * interface between Zorp and the SSL library
  **/
 
-#include <zorp/ssl.h>
-#include <zorp/log.h>
-#include <zorp/thread.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <zorpll/ssl.h>
+#include <zorpll/log.h>
+#include <zorpll/thread.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>

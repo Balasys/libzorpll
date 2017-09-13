@@ -7,16 +7,23 @@
  *
  ***************************************************************************/
 
-#include <zorp/log.h>
-#include <zorp/thread.h>
-#include <zorp/error.h>
-#include <zorp/misc.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <zorpll/log.h>
+#include <zorpll/thread.h>
+#include <zorpll/error.h>
+#include <zorpll/misc.h>
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <fcntl.h>
 #ifdef HAVE_UNISTD_H
   #include <unistd.h>
+#endif
+#ifdef HAVE_SYSLOG_H
+#include <syslog.h>
 #endif
 #include <string.h>
 #include <ctype.h>
@@ -228,7 +235,7 @@ z_send_syslog(gint pri, const gchar *msg)
   G_LOCK_DEFINE_STATIC(lock);
 
   now = time(NULL);
-  localtime_r(&now, &t);
+  z_localtime_r(&now, &t);
 
   strftime(timestamp, sizeof(timestamp), "%h %e %H:%M:%S", &t);
 
@@ -973,7 +980,7 @@ z_log_func_nosyslog(const gchar *log_domain G_GNUC_UNUSED,
 
   /* prepend timestamp */
   time(&now);
-  strftime(timestamp, sizeof(timestamp), "%b %d %H:%M:%S", localtime_r(&now, &tmnow));
+  strftime(timestamp, sizeof(timestamp), "%b %d %H:%M:%S", z_localtime_r(&now, &tmnow));
   fprintf(stderr, "%s %s\n", timestamp, message);
 }
 
@@ -1390,7 +1397,7 @@ z_log_trace_indent(gint dir)
 static GOptionEntry z_log_option_entries[] =
 {
   { "verbose",    'v',                          0, G_OPTION_ARG_INT,      &log_opts_cmdline.verbose_level,    "Set verbosity level", "<verbosity>" },
-  { "no-syslog",  'l',      G_OPTION_FLAG_REVERSE, G_OPTION_ARG_NONE,     &log_opts_cmdline.use_syslog,       "Do not send messages to syslog", NULL },
+  { "no-syslog",  'l',      G_OPTION_FLAG_REVERSE, G_OPTION_ARG_NONE,     &log_opts_cmdline.use_syslog,       "Do not send messages to syslog, implies foreground mode", NULL },
   { "log-spec",   's',                          0, G_OPTION_ARG_STRING,   &log_opts_cmdline.log_spec,         "Set log specification", "<logspec>" },
   { "logspec",    's',      G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_STRING,    &log_opts_cmdline.log_spec,         "Alias for log-spec", "<logspec>" },
   { "log-tags",   'T',                          0, G_OPTION_ARG_NONE,     &log_opts_cmdline.log_tags,         "Enable logging of message tags", NULL },

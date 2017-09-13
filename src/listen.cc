@@ -7,11 +7,15 @@
  *
  ***************************************************************************/
 
-#include <zorp/listen.h>
-#include <zorp/io.h>
-#include <zorp/log.h>
-#include <zorp/socketsource.h>
-#include <zorp/streamfd.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <zorpll/listen.h>
+#include <zorpll/io.h>
+#include <zorpll/log.h>
+#include <zorpll/socketsource.h>
+#include <zorpll/streamfd.h>
 
 #include <sys/types.h>
 #ifdef HAVE_UNISTD_H
@@ -27,7 +31,7 @@
 #  include <netinet/in.h>
 #endif
 
-#include <zorp/misc.h>
+#include <zorpll/misc.h>
 
 #define MAX_ACCEPTS_AT_A_TIME 50
 

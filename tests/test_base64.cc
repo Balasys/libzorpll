@@ -1,8 +1,8 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <zorp/code.h>
-#include <zorp/code_base64.h>
+#include <zorpll/code.h>
+#include <zorpll/code_base64.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>

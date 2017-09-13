@@ -7,10 +7,10 @@
  *
  ***************************************************************************/
 
-#include <zorp/streamfd.h>
+#include <zorpll/streamfd.h>
 
-#include <zorp/log.h>
-#include <zorp/error.h>
+#include <zorpll/log.h>
+#include <zorpll/error.h>
 
 #include <string.h>
 #include <sys/types.h>
@@ -18,7 +18,7 @@
 
 #ifdef G_OS_WIN32
 #  include <winsock2.h>
-#  include <zorp/io.h>
+#  include <zorpll/io.h>
 #else
 #  include <fcntl.h>
 #  include <sys/socket.h>

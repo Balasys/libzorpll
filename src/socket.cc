@@ -7,11 +7,11 @@
  *
  ***************************************************************************/
 
-#include <zorp/socket.h>
-#include <zorp/cap.h>
-#include <zorp/log.h>
-#include <zorp/error.h>
-#include <zorp/random.h>
+#include <zorpll/socket.h>
+#include <zorpll/cap.h>
+#include <zorpll/log.h>
+#include <zorpll/error.h>
+#include <zorpll/random.h>
 
 #define MAGIC_FAMILY_NUMBER 111
 

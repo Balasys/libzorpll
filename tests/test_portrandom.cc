@@ -14,7 +14,7 @@
  */
 
 /* zorp headers */
-#include <zorp/socket.h>
+#include <zorpll/socket.h>
 
 /* glib headers */
 #include <glib.h>

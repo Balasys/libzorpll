@@ -7,10 +7,10 @@
  *
  ***************************************************************************/
 
-#include <zorp/streamblob.h>
+#include <zorpll/streamblob.h>
 
-#include <zorp/log.h>
-#include <zorp/error.h>
+#include <zorpll/log.h>
+#include <zorpll/error.h>
 
 #include <string.h>
 #include <sys/types.h>

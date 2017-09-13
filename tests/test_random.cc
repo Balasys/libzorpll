@@ -1,7 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <zorp/random.h>
+#include <zorpll/random.h>
 
 #include <stdio.h>
 #include <set>

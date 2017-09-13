@@ -7,8 +7,8 @@
  *
  ***************************************************************************/
 
-#include <zorp/zobject.h>
-#include <zorp/log.h>
+#include <zorpll/zobject.h>
+#include <zorpll/log.h>
 
 /**
  * struct type to hold ZObject virtual methods.

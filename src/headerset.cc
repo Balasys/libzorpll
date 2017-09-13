@@ -7,9 +7,9 @@
  *
  ***************************************************************************/
 
-#include <zorp/headerset.h>
+#include <zorpll/headerset.h>
 
-#include <zorp/log.h>
+#include <zorpll/log.h>
 
 
 static void

@@ -7,8 +7,8 @@
  *
  ***************************************************************************/
 
-#include <zorp/zorplib.h>
-#include <zorp/misc.h>
+#include <zorpll/zorplib.h>
+#include <zorpll/misc.h>
 #include <string.h>
 #include <stdio.h>
 

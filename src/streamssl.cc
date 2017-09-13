@@ -14,10 +14,10 @@
 #  include <sys/poll.h>
 #endif
 
-#include <zorp/stream.h>
-#include <zorp/log.h>
-#include <zorp/zorplib.h>
-#include <zorp/error.h>
+#include <zorpll/stream.h>
+#include <zorpll/log.h>
+#include <zorpll/zorplib.h>
+#include <zorpll/error.h>
 
 #include <string.h>
 #include <sys/types.h>
@@ -25,8 +25,8 @@
 
 #include <openssl/err.h>
 
-#include <zorp/ssl.h>
-#include <zorp/streamssl.h>
+#include <zorpll/ssl.h>
+#include <zorpll/streamssl.h>
 
 #include <openssl/err.h>
 #define ERR_buflen 4096
