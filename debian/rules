@@ -2,7 +2,3 @@
 
 %:
 	dh $@ --with autoreconf --parallel
-
-override_dh_strip:
-	dh_strip -plibzorpll7.0-1 --dbg-package=libzorpll7.0-1-dbg
-	dh_strip -plibzorpll7.0-1-memtrace --dbg-package=libzorpll7.0-1-memtrace
