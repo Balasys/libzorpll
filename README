@@ -1,2 +1,6 @@
+[![Travis Build Status](https://secure.travis-ci.org/Balasys/libzorpll.svg?branch=6.0.11.0)](http://travis-ci.org/Balasys/libzorpll)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/Balasys-libzorpll/badge.svg)](https://scan.coverity.com/projects/Balasys-libzorpll)
+[![HitCount](https://hitt.herokuapp.com/nelsonic/hits.svg)](https://github.com/Balasys/libzorpll/hits)
+
 This library contains the low level routines that Zorp and related software
 depend on.
