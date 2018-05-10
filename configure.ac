@@ -17,7 +17,7 @@ dnl Dependencies
 
 LIBGLIB_MIN_VERSION=2.32.0
 OPENSSL_MIN_VERSION=1.0.1
-OPENSSL_MAX_VERSION="1.1.1"
+OPENSSL_MAX_VERSION="1.1.0"
 
 dnl ***************************************************************************
 dnl Initial setup
@@ -259,7 +259,11 @@ if test "x$enable_tos" = "xauto"; then
 	fi
 fi
 
-
+if test "`uname -s`" = "Linux";then
+        CURRDATE=`date -R`
+else
+        CURRDATE=`date +"%a, %d %b %Y %H:%M:%S %Z"`
+fi
 
 dnl ***************************************************************************
 dnl Export detected settings to Makefiles and Zorp
@@ -363,6 +367,8 @@ AC_SUBST(ZORPLIB_ENABLE_STACKDUMP)
 AC_SUBST(ZORPLIB_ENABLE_CAPS)
 AC_SUBST(ZORPLIB_ENABLE_SSL_ENGINE)
 AC_SUBST(ZORPLIB_ENABLE_TOS)
+
+AC_SUBST(CURRDATE)
 
 AC_CONFIG_FILES([
 Makefile

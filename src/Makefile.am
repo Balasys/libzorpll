@@ -31,6 +31,7 @@ libzorpll_6_0_la_SOURCES = \
 	streamgzip.cc \
 	streamline.cc \
 	streamssl.cc \
+	string.cc \
 	thread.cc \
 	zobject.cc \
 	blob.cc \

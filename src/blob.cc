@@ -414,7 +414,9 @@ z_blob_system_threadproc(ZBlobSystem *self)
         {
           g_get_current_time(&next_time);
           next_time.tv_sec += interval;
+          g_mutex_lock(&self->mtx_blobsys);
           z_blob_system_report_usage(self);
+          g_mutex_unlock(&self->mtx_blobsys);
           continue;
         }
       
@@ -422,7 +424,9 @@ z_blob_system_threadproc(ZBlobSystem *self)
 
       if (now.tv_sec > next_time.tv_sec)
         {
+          g_mutex_lock(&self->mtx_blobsys);
           z_blob_system_report_usage(self);
+          g_mutex_unlock(&self->mtx_blobsys);
         }
       
       if (blob == (ZBlob*)Z_BLOB_THREAD_KILL)
@@ -704,6 +708,7 @@ z_blob_new(ZBlobSystem *sys, gsize initial_size)
   self->mapped_ptr = NULL;
   self->mapped_length = 0;
   self->storage_locked = FALSE;
+  self->replied = FALSE;
 
   z_blob_statistic_init(&self->stat);
   g_mutex_init(&self->mtx_lock);
@@ -906,11 +911,11 @@ z_blob_alloc(ZBlob *self, gint64 req_size)
   if (!alloc_granted)
     {
       self->approved = FALSE;
-      self->replied = FALSE;
       g_mutex_lock(&self->mtx_reply);
       g_async_queue_push(self->system->req_queue, self);
       while (!self->replied)
         g_cond_wait(&self->cond_reply, &self->mtx_reply);
+      self->replied = FALSE;
       g_mutex_unlock(&self->mtx_reply);
       alloc_granted = self->approved;
     }
@@ -1539,8 +1544,6 @@ GIOStatus z_blob_write_to_buffer(ZBlob *self, std::vector<unsigned char> &buffer
       read_pos += mapped_length;
       write_pos += mapped_length;
     }
-
-  return G_IO_STATUS_NORMAL;
 }
 
 /**

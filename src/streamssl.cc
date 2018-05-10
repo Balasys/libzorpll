@@ -193,8 +193,8 @@ z_stream_ssl_read_method(ZStream *s, void *buf, gsize count,gsize *bytes_read, G
   if (self->what_if_called == CALL_WRITE_WHEN_READ)
     {
       /*LOG
-        This message indicates an internal error. Please report this event to the Balabit
-        QA Team (devel@balabit.com).
+        This message indicates an internal error. Please report this event to the BalaSys
+        Development Team (devel@balasys.hu).
        */
       z_log(NULL, CORE_ERROR, 2, "Internal error; error='Read called, when only write might be called'");
     }
