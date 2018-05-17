@@ -2,9 +2,9 @@ EXTRA_DIST = libzorpll.rc libzorpll.def win32_reg.cc
 
 SUBDIRS = zorp
 
-lib_LTLIBRARIES = libzorpll-6.0.la
+lib_LTLIBRARIES = libzorpll-7.0.la
 
-libzorpll_6_0_la_SOURCES = \
+libzorpll_7_0_la_SOURCES = \
 	cap.cc \
 	connect.cc \
 	crypt.cc \
@@ -39,21 +39,20 @@ libzorpll_6_0_la_SOURCES = \
 	streamtee.cc \
 	code_base64.cc \
 	code.cc \
-	code_cipher.cc \
 	code_gzip.cc \
 	headerset.cc \
 	zcp.cc \
 	zurlparse.cc
 	
 
-libzorpll_6_0_la_LDFLAGS = \
+libzorpll_7_0_la_LDFLAGS = \
 	$(REGULAR_LDFLAGS) \
 	-version-info $(LIBZORPLL_LT_CURRENT):0:$(LIBZORPLL_LT_AGE) \
 	-export-dynamic
 
-libzorpll_6_0_la_CPPFLAGS = -DCOMPILING_LIBZORPLL
+libzorpll_7_0_la_CPPFLAGS = -DCOMPILING_LIBZORPLL
 
-libzorpll_6_0_la_CXXFLAGS = $(REGULAR_CXXFLAGS)
+libzorpll_7_0_la_CXXFLAGS = $(REGULAR_CXXFLAGS)
 
 install-exec-local:
 	$(MKDIR_P) ${DESTDIR}/${ZORPLIB_TEMP_DIR}

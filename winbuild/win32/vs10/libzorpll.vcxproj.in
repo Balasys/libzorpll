@@ -14,7 +14,6 @@
     <ClCompile Include="..\..\..\src\cap.cc" />
     <ClCompile Include="..\..\..\src\code.cc" />
     <ClCompile Include="..\..\..\src\code_base64.cc" />
-    <ClCompile Include="..\..\..\src\code_cipher.cc" />
     <ClCompile Include="..\..\..\src\code_gzip.cc" />
     <ClCompile Include="..\..\..\src\connect.cc" />
     <ClCompile Include="..\..\..\src\crypt.cc" />

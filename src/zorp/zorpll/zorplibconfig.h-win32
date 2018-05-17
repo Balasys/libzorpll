@@ -16,6 +16,6 @@
 #define ZORPLIBLL_PACKAGE "libzorpll"
 
 /* Zorp low level library version  */
-#define ZORPLIBLL_VERSION "6.0.12.0"
+#define ZORPLIBLL_VERSION "7.0.1.0~alpha1"
 
-#define ZORPLIBLL_REVISION "ssh+git://coroner@git.balasys/var/scm/git/zorp/libzorpll--mainline--6.0#6.0#bb198f4a3db0d0a0fa2698b42a825fc0d804615d"
+#define ZORPLIBLL_REVISION "ssh+git://coroner@git.balasys/var/scm/git/zorp/libzorpll#7.0#a70ebccb649d77665e2ed02ce89405ae8db5eac3"

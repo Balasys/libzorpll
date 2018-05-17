@@ -42,6 +42,12 @@
 #  include <sys/prctl.h>
 #endif
 
+#if HAVE_SYSTEMD == 1
+#include <systemd/sd-daemon.h>
+#include <zorpll/thread.h>
+#include <zorpll/log.h>
+#endif
+
 /**
  * @file
  *
@@ -456,6 +462,16 @@ z_process_get_check_enable(void)
   return FALSE;
 }
 
+/**
+ * Returns with the current processing mode.
+ *
+ * @returns current processing mode
+ **/
+ZProcessMode
+z_process_get_mode()
+{
+  return process_opts.mode;
+}
 
 /**
  * Send a message to the client using stderr as long as it's available and using
@@ -500,7 +516,7 @@ z_process_message(const gchar *fmt, ...)
 static void
 z_process_detach_tty(void)
 {
-  if (process_opts.mode != Z_PM_FOREGROUND)
+  if (process_opts.mode != Z_PM_FOREGROUND && process_opts.mode != Z_PM_SYSTEMD_NOTIFY)
     {
       /* detach ourselves from the tty when not staying in the foreground */
       if (isatty(STDIN_FILENO))
@@ -537,7 +553,7 @@ z_process_detach_stdio(void)
 {
   gint devnull_fd;
 
-  if (process_opts.mode != Z_PM_FOREGROUND && stderr_present)
+  if (process_opts.mode != Z_PM_FOREGROUND && process_opts.mode != Z_PM_SYSTEMD_NOTIFY && stderr_present)
     {
       devnull_fd = open("/dev/null", O_RDONLY);
       if (devnull_fd >= 0)
@@ -824,7 +840,7 @@ static void
 z_process_change_dir(void)
 {
   const gchar *cwd = NULL;
-  
+
   if (process_opts.mode != Z_PM_FOREGROUND)
     {
       if (process_opts.cwd)
@@ -1240,6 +1256,22 @@ z_process_perform_supervise(void)
   exit(0);
 }
 
+#if HAVE_SYSTEMD == 1
+static gpointer
+z_systemd_notify(gpointer user_data)
+{
+  const gint watchdog_delay = GPOINTER_TO_INT(user_data);
+
+  while (true)
+    {
+      sleep(watchdog_delay);
+      sd_notify(0, "WATCHDOG=1");
+    }
+
+  return nullptr;
+}
+#endif
+
 /**
  * Start the process as directed by the options set by various
  * z_process_set_*() functions.
@@ -1327,14 +1359,34 @@ z_process_start(void)
     {
       process_kind = Z_PK_DAEMON;
     }
+#if HAVE_SYSTEMD == 1
+  else if (process_opts.mode == Z_PM_SYSTEMD_NOTIFY)
+    {
+      const char *watchdog_usec_env_str = getenv("WATCHDOG_USEC");
+      if (!watchdog_usec_env_str)
+        {
+          z_log(nullptr, CORE_ERROR, 0,
+                "The systemd-notify process-mode requires the WATCHDOG_USEC environment variable to be set");
+          exit(1);
+        }
+
+      const int watchdog_usec = atoi(watchdog_usec_env_str);
+      const int watchdog_delay = watchdog_usec / (1000000 * 2); // in sec and half of the value
+      if (watchdog_delay < 1)
+        {
+          z_log(nullptr, CORE_ERROR, 0, "WATCHDOG_USEC has invalid value");
+          exit(1);
+        }
+
+      process_kind = Z_PK_DAEMON;
+      z_thread_new("systemd-notify", z_systemd_notify, GINT_TO_POINTER(watchdog_delay));
+      sd_notify(0, "READY=1");
+    }
+#endif
   else
     {
       g_assert_not_reached();
     }
-    
-  /* daemon process, we should return to the caller to perform work */
-  
-  setsid();
   
   /* NOTE: we need to signal the parent in case of errors from this point. 
    * This is accomplished by writing the appropriate exit code to
@@ -1348,7 +1400,9 @@ z_process_start(void)
       z_process_startup_failed(1, TRUE);
     }
   z_process_enable_core();
-  z_process_change_dir();
+
+  if (process_opts.mode != Z_PM_SYSTEMD_NOTIFY)
+    z_process_change_dir();
 }
 
 
@@ -1380,7 +1434,10 @@ z_process_startup_failed(guint ret_num, gboolean may_exit)
 void
 z_process_startup_ok(void)
 {
-  z_process_write_pidfile(getpid());
+  if (process_opts.mode != Z_PM_SYSTEMD_NOTIFY)
+    {
+      z_process_write_pidfile(getpid());
+    }
   
   z_process_send_result(0);
   z_process_detach_stdio();
@@ -1394,7 +1451,10 @@ z_process_startup_ok(void)
 void
 z_process_finish(void)
 {
-  z_process_remove_pidfile();
+  if (process_opts.mode != Z_PM_SYSTEMD_NOTIFY)
+    {
+      z_process_remove_pidfile();
+    }
 }
 
 /**
@@ -1404,7 +1464,10 @@ z_process_finish(void)
 void
 z_process_finish_prepare(void)
 {
-  z_process_remove_pidfile();
+  if (process_opts.mode != Z_PM_SYSTEMD_NOTIFY)
+    {
+      z_process_remove_pidfile();
+    }
 }
 
 static gboolean
@@ -1422,6 +1485,12 @@ z_process_process_mode_arg(const gchar *option_name G_GNUC_UNUSED, const gchar *
     {
       process_opts.mode = Z_PM_SAFE_BACKGROUND;
     }
+#if HAVE_SYSTEMD == 1
+  else if (strcmp(value, "systemd-notify") == 0)
+    {
+      process_opts.mode = Z_PM_SYSTEMD_NOTIFY;
+    }
+#endif
   else
     {
       g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE, "Error parsing process-mode argument");
@@ -1433,7 +1502,12 @@ z_process_process_mode_arg(const gchar *option_name G_GNUC_UNUSED, const gchar *
 static GOptionEntry z_process_option_entries[] =
 {
   { "foreground",   'F', G_OPTION_FLAG_REVERSE, G_OPTION_ARG_NONE,     &process_opts.mode,              "Do not go into the background after initialization", NULL },
-  { "process-mode",   0,                     0, G_OPTION_ARG_CALLBACK, reinterpret_cast<void *>(z_process_process_mode_arg) ,     "Set process running mode", "<foreground|background|safe-background>" },
+  { "process-mode",   0,                     0, G_OPTION_ARG_CALLBACK, reinterpret_cast<void *>(z_process_process_mode_arg) ,     "Set process running mode",
+#if HAVE_SYSTEMD == 1
+    "<foreground|background|safe-background|systemd-notify>" },
+#else
+    "<foreground|background|safe-background>" },
+#endif
   { "user",         'u',                     0, G_OPTION_ARG_STRING,   &process_opts.user,              "Set the user to run as", "<user>" },
   { "uid",            0,  G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_STRING,   &process_opts.user,              NULL, NULL },
   { "group",        'g',                     0, G_OPTION_ARG_STRING,   &process_opts.group,             "Set the group to run as", "<group>" },

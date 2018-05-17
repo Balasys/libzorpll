@@ -4,6 +4,6 @@ gettext
 libgettext-dev
 libglib2.0-dev
 libglib2.0-0
-libssl1.0.0
+libssl1.1
 libssl-dev
 msvc-compat-dev

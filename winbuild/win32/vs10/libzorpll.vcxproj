@@ -14,7 +14,6 @@
     <ClCompile Include="..\..\..\src\cap.cc" />
     <ClCompile Include="..\..\..\src\code.cc" />
     <ClCompile Include="..\..\..\src\code_base64.cc" />
-    <ClCompile Include="..\..\..\src\code_cipher.cc" />
     <ClCompile Include="..\..\..\src\code_gzip.cc" />
     <ClCompile Include="..\..\..\src\connect.cc" />
     <ClCompile Include="..\..\..\src\crypt.cc" />
@@ -134,6 +133,6 @@
   <Target Name="ZbsInstall">
     <Copy SourceFiles="$(Configuration)\libzorpll.lib" DestinationFolder="$(TopDir)\winbuild\staging\lib" />
     <Copy SourceFiles="$(Configuration)\libzorpll.pdb" DestinationFolder="$(TopDir)\winbuild\staging\lib" />
-    <Copy SourceFiles="@(IncludeFiles)" DestinationFolder="$(TopDir)\winbuild\staging\include\zorp-6.0\zorpll" />
+    <Copy SourceFiles="@(IncludeFiles)" DestinationFolder="$(TopDir)\winbuild\staging\include\zorp-7.0\zorpll" />
   </Target>
 </Project>

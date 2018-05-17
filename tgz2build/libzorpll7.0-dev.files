@@ -1,6 +1,6 @@
-opt/zorp/lib/pkgconfig/zorpll-6.0.pc
+opt/zorp/lib/pkgconfig/zorpll-7.0.pc
 opt/zorp/lib/libzorpll.a
 opt/zorp/lib/libzorpll.la
 opt/zorp/lib/libzorpll*.so
 opt/zorp/lib/libzorpll*.so*
-opt/zorp/include/zorp-6.0/zorpll/*h
+opt/zorp/include/zorp-7.0/zorpll/*h

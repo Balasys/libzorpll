@@ -24,9 +24,6 @@
     <ClCompile Include="..\..\..\src\code_base64.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\code_cipher.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\code_gzip.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
