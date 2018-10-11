@@ -78,7 +78,7 @@ z_registry_add(const gchar *name, gint type, gpointer value)
         This message indicates that an internal error occurred,
         a buggy/incompatible loadable module wanted to register
         an unsupported module type. Please report this event to the 
-	 Balabit QA Team (devel@balabit.com).
+	 BalaSys Development Team (devel@balasys.hu).
        */
       z_log(NULL, CORE_ERROR, 0, "Internal error, bad registry type; name='%s', type='%d'", name, type);
       return;

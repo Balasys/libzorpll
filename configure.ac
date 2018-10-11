@@ -16,8 +16,9 @@ dnl ***************************************************************************
 dnl Dependencies
 
 LIBGLIB_MIN_VERSION=2.32.0
-OPENSSL_MIN_VERSION=1.0.1
-OPENSSL_MAX_VERSION="1.1.1"
+
+OPENSSL_MIN_VERSION=1.1.0
+OPENSSL_MAX_VERSION=1.1.2
 
 dnl ***************************************************************************
 dnl Initial setup
@@ -191,6 +192,9 @@ if test "x$ac_cv_header_crypt_h" = "xyes"; then
 	AC_CHECK_FUNCS(crypt)
 fi
 
+PKG_CHECK_MODULES(SYSTEMD, libsystemd, AC_DEFINE(HAVE_SYSTEMD, 1, [Define if systemd is available]),
+                                       AC_DEFINE(HAVE_SYSTEMD, 0, [Define if systemd is available]))
+
 PKG_CHECK_MODULES(GLIB, glib-2.0 >= $LIBGLIB_MIN_VERSION,,
 	AC_MSG_ERROR(Cannot find GLib library version >= $LIBGLIB_MIN_VERSION: is pkg-config in path?))
 
@@ -259,7 +263,11 @@ if test "x$enable_tos" = "xauto"; then
 	fi
 fi
 
-
+if test "`uname -s`" = "Linux";then
+        CURRDATE=`date -R`
+else
+        CURRDATE=`date +"%a, %d %b %Y %H:%M:%S %Z"`
+fi
 
 dnl ***************************************************************************
 dnl Export detected settings to Makefiles and Zorp
@@ -277,7 +285,7 @@ LIBZORPLL_COMPAT_VERSION="`echo $VERSION | cut -d '.' -f 1-3`"
 dnl Library versioning, the resulting shared object is named:
 dnl 	libzorpll-<RELEASE>.so.<AGE>
 dnl 
-VERSION_NOSNAPSHOT="`echo $VERSION | cut -d '+' -f 1`"
+VERSION_NOSNAPSHOT="`echo $VERSION | cut -d '+' -d '~' -f 1`"
 
 VERSION_MAJOR=`echo $VERSION_NOSNAPSHOT |  cut -d '.' -f 1`
 VERSION_MINOR=`echo $VERSION_NOSNAPSHOT |  cut -d '.' -f 2`
@@ -331,7 +339,7 @@ DEPS_CXXFLAGS="$GLIB_CFLAGS $GTHREAD_CFLAGS $GIO_CFLAGS $OPENSSL_CFLAGS"
 LOCAL_CXXFLAGS='-I$(top_srcdir)/src/zorp -I$(top_builddir)/src/zorp'
 REGULAR_CXXFLAGS="-std=c++11 $WARNING_CXXFLAGS $DIRECTORY_CXXFLAGS $DEPS_CXXFLAGS $LOCAL_CXXFLAGS"
 
-DEPS_LIBS="$GLIB_LIBS $GTHREAD_LIBS $GIO_LIBS $OPENSSL_LIBS -DOPENSSL_NO_DEPRECATED -DOPENSSL_API_COMPAT=0x10100000L"
+DEPS_LIBS="$GLIB_LIBS $GTHREAD_LIBS $GIO_LIBS $OPENSSL_LIBS $SYSTEMD_LIBS -DOPENSSL_NO_DEPRECATED -DOPENSSL_API_COMPAT=0x10100000L"
 REGULAR_LDFLAGS="$DEPS_LIBS"
 
 AC_SUBST(SNAPSHOT_VERSION)
@@ -339,7 +347,6 @@ AC_SUBST(RELEASE_TAG)
 AC_SUBST(SOURCE_REVISION)
 AC_SUBST(LIBGLIB_MIN_VERSION)
 AC_SUBST(OPENSSL_MIN_VERSION)
-AC_SUBST(OPENSSL_MAX_VERSION)
 AC_SUBST(ZORPLIBLL_VERSION)
 AC_SUBST(ZORPLIBLL_WIN_VERSION)
 
@@ -363,6 +370,8 @@ AC_SUBST(ZORPLIB_ENABLE_STACKDUMP)
 AC_SUBST(ZORPLIB_ENABLE_CAPS)
 AC_SUBST(ZORPLIB_ENABLE_SSL_ENGINE)
 AC_SUBST(ZORPLIB_ENABLE_TOS)
+
+AC_SUBST(CURRDATE)
 
 AC_CONFIG_FILES([
 Makefile

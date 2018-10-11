@@ -1,5 +1,5 @@
-usr/lib/*/pkgconfig/zorpll-6.0.pc
+usr/lib/*/pkgconfig/zorpll-7.0.pc
 usr/lib/*/libzorpll*.a
 usr/lib/*/libzorpll*.la
 usr/lib/*/libzorpll*.so
-usr/include/zorp-6.0/zorpll/*h
+usr/include/zorp-7.0/zorpll/*h

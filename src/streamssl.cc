@@ -193,8 +193,8 @@ z_stream_ssl_read_method(ZStream *s, void *buf, gsize count,gsize *bytes_read, G
   if (self->what_if_called == CALL_WRITE_WHEN_READ)
     {
       /*LOG
-        This message indicates an internal error. Please report this event to the Balabit
-        QA Team (devel@balabit.com).
+        This message indicates an internal error. Please report this event to the BalaSys
+        Development Team (devel@balasys.hu).
        */
       z_log(NULL, CORE_ERROR, 2, "Internal error; error='Read called, when only write might be called'");
     }
@@ -388,14 +388,13 @@ z_stream_ssl_ctrl_method(ZStream *s, guint function, gpointer value, guint vlen)
       if (vlen == sizeof(ZSSLSession *))
         {
           ZSSLSession *ssl = (ZSSLSession *) value;
-          BIO *bio;
 
           self->ssl = z_ssl_session_ref(ssl);
 
           if (self->super.child)
             {
-              bio = z_ssl_bio_new(self->super.child);
-              SSL_set_bio(self->ssl->ssl, bio, bio);
+              ZStreamBio *bio = z_ssl_bio_new(self->super.child);
+              SSL_set_bio(self->ssl->ssl, bio->super, bio->super);
             }
         }
       break;
@@ -501,7 +500,6 @@ static void
 z_stream_ssl_set_child(ZStream *s, ZStream *new_child)
 {
   ZStreamSsl *self = Z_CAST(s, ZStreamSsl);
-  BIO *bio;
 
   z_stream_ref(s);
   
@@ -511,8 +509,8 @@ z_stream_ssl_set_child(ZStream *s, ZStream *new_child)
     {
       if (self->ssl)
         {
-          bio = z_ssl_bio_new(self->super.child);
-          SSL_set_bio(self->ssl->ssl, bio, bio);
+          ZStreamBio *bio = z_ssl_bio_new(self->super.child);
+          SSL_set_bio(self->ssl->ssl, bio->super, bio->super);
         }
 
       z_stream_set_callback(self->super.child, G_IO_IN, z_stream_ssl_read_callback, z_stream_ref(s), (GDestroyNotify) z_stream_unref);

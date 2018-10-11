@@ -25,6 +25,7 @@ typedef enum
   Z_PM_FOREGROUND,
   Z_PM_BACKGROUND,
   Z_PM_SAFE_BACKGROUND,
+  Z_PM_SYSTEMD_NOTIFY,
 } ZProcessMode;
 
 void z_process_message(const gchar *fmt, ...);
@@ -45,6 +46,7 @@ void z_process_set_use_fdlimit(gboolean use);
 void z_process_set_check(gint check_period, gboolean (*check_fn)(void));
 void z_process_set_check_enable(gboolean new_state);
 gboolean z_process_get_check_enable(void);
+ZProcessMode z_process_get_mode();
 
 void z_process_start(void);
 void z_process_startup_failed(guint ret_num, gboolean may_exit);
