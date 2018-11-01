@@ -231,23 +231,6 @@ if test "x$enable_caps" = "xauto" ; then
         fi
 fi
 
-if test "x$enable_stackdump" = "xauto"; then
-        enable_stackdump=no
-        AC_MSG_CHECKING(whether to enable stack dumping (only in i386 Linux))
-	proc=`uname -m | sed -e 's/i.86/i386/'`
-	os=`uname -s`
-        if test "x$proc" = "xi386"; then
-                if test "x$os" = "xLinux"; then
-                        AC_MSG_RESULT(yes)
-                        enable_stackdump=yes
-                else
-                        AC_MSG_RESULT(no)
-                fi
-        else
-                AC_MSG_RESULT(no)
-        fi
-fi
-
 if test "x$enable_ssl_engine" = "xauto"; then
 	AC_CHECK_LIB(crypto, ENGINE_by_id, enable_ssl_engine=yes, enable_ssl_engine=no)
 fi
