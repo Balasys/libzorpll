@@ -18,7 +18,7 @@ dnl Dependencies
 LIBGLIB_MIN_VERSION=2.32.0
 
 OPENSSL_MIN_VERSION=1.1.0
-OPENSSL_MAX_VERSION=1.1.1
+OPENSSL_MAX_VERSION=1.1.2
 
 dnl ***************************************************************************
 dnl Initial setup
@@ -170,6 +170,18 @@ IP_RECVTOS
 if test "x$blb_cv_ip_recvtos" = "xyes"; then
 	AC_DEFINE(HAVE_IP_RECVTOS, 1, [have IP_RECVTOS])
 fi
+
+AC_CHECK_DECL([closefrom],
+  AC_DEFINE([HAVE_CLOSEFROM], [1], [Use closefrom() for z_closefrom]),
+  [],
+  [  #include <unistd.h> ]
+)
+
+AC_CHECK_DECL([F_CLOSEM],
+  AC_DEFINE([HAVE_FCNTL_CLOSEM], [1], [Use F_CLOSEM fcntl for z_closefrom]),
+  [],
+  [ #include <fcntl.h> ]
+)
 
 dnl ***************************************************************************
 dnl Checks for library functions.

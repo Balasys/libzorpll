@@ -35,19 +35,6 @@ Description: Low level library functions for Zorp, development files
  This package contains the development files necessary to create programs
  based on libzorpll.
 
-Package: libzorpll7.0-1-dbg
-Section: debug
-Architecture: any
-Priority: extra
-Depends: libzorpll7.0-1 (= ${binary:Version}), ${misc:Depends}
-Description: Low level library functions for Zorp, debug version
- Zorp is a new generation firewall. It is essentially a transparent proxy
- firewall, with strict protocol analyzing proxies, a modular architecture,
- and fine-grained control over the mediated traffic. Configuration decisions
- are scriptable with the Python based configuration language.
- .
- This package contains the debugging symbols for libzorpll7.0-1.
-
 Package: libzorpll7.0-1-memtrace
 Section: debug
 Architecture: any

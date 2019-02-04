@@ -1544,6 +1544,8 @@ GIOStatus z_blob_write_to_buffer(ZBlob *self, std::vector<unsigned char> &buffer
       read_pos += mapped_length;
       write_pos += mapped_length;
     }
+
+  return G_IO_STATUS_NORMAL;
 }
 
 /**
