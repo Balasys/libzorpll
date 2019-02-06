@@ -232,7 +232,9 @@ void z_libzorpll_add_option_groups(GOptionContext *ctx, guint disable_groups);
 
 struct tm *z_localtime_r(const time_t *timep, struct tm *result);
 
+#ifndef G_OS_WIN32
 int z_closefrom(const int lowfd);
+#endif
 
 #ifdef __cplusplus
 }
