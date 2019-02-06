@@ -297,7 +297,7 @@ LIBZORPLL_COMPAT_VERSION="`echo $VERSION | cut -d '.' -f 1-3`"
 dnl Library versioning, the resulting shared object is named:
 dnl 	libzorpll-<RELEASE>.so.<AGE>
 dnl 
-VERSION_NOSNAPSHOT="`echo $VERSION | cut -d '+' -d '~' -f 1`"
+VERSION_NOSNAPSHOT="`echo $VERSION | cut -d '+' -f 1 | cut -d '~' -f 1`"
 
 VERSION_MAJOR=`echo $VERSION_NOSNAPSHOT |  cut -d '.' -f 1`
 VERSION_MINOR=`echo $VERSION_NOSNAPSHOT |  cut -d '.' -f 2`
@@ -346,7 +346,7 @@ tos: $enable_tos
 EOF
 
 DIRECTORY_CXXFLAGS="-DZORPLIB_PIDFILE_DIR=\\\"${ZORPLIB_PIDFILE_DIR}\\\" -DZORPLIB_TEMP_DIR=\\\"${ZORPLIB_TEMP_DIR}\\\" -DZORPLIB_LIBEXECDIR=\\\"${ZORPLIB_LIBEXECDIR}\\\""
-WARNING_CXXFLAGS="-Wall -Wshadow -W -Werror-implicit-function-declaration -Wpointer-arith"
+WARNING_CXXFLAGS="-Wall -Wshadow -W -Werror-implicit-function-declaration -Wpointer-arith -Wwrite-strings"
 DEPS_CXXFLAGS="$GLIB_CFLAGS $GTHREAD_CFLAGS $GIO_CFLAGS $OPENSSL_CFLAGS"
 LOCAL_CXXFLAGS='-I$(top_srcdir)/src/zorp -I$(top_builddir)/src/zorp'
 REGULAR_CXXFLAGS="-std=c++11 $WARNING_CXXFLAGS $DIRECTORY_CXXFLAGS $DEPS_CXXFLAGS $LOCAL_CXXFLAGS"

@@ -56,7 +56,7 @@ typedef struct _ZStreamFDExtra
 } ZStreamFDExtra;
 
 static gboolean
-z_stream_fd_watch_prepare(ZStream *s, GSource *src G_GNUC_UNUSED, gint *timeout)
+z_stream_fd_watch_prepare(ZStream *s, GSource */* src */, gint *timeout)
 {
   ZStreamFD *mystream = (ZStreamFD *) s;
   GPollFD *mypollfd = &mystream->pollfd;
@@ -147,7 +147,7 @@ z_stream_fd_watch_prepare(ZStream *s, GSource *src G_GNUC_UNUSED, gint *timeout)
 }
 
 static gboolean
-z_stream_fd_watch_check(ZStream *s, GSource *src G_GNUC_UNUSED)
+z_stream_fd_watch_check(ZStream *s, GSource */* src */)
 {
   ZStreamFD *mystream = (ZStreamFD *) s;
   GPollFD *mypollfd = &mystream->pollfd;

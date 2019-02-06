@@ -27,7 +27,7 @@ typedef struct _ZClassFuncs
  * This function currently does nothing as ZObject has no real data structure.
  **/
 void
-z_object_free_method(ZObject *s G_GNUC_UNUSED)
+z_object_free_method(ZObject */* s */)
 {
   /* empty */
 }

@@ -7,8 +7,8 @@
 
 typedef struct _Tests
 {
-  gchar *valid_chars;
-  gchar *teststring;
+  const gchar *valid_chars;
+  const gchar *teststring;
   gboolean expected_result;
 } Tests;
 
@@ -20,7 +20,7 @@ static struct _Tests testcases[] = {
 	{"a-zA-Z0-9._@\\\\", "Apple\\Tree", TRUE},
 	{NULL, NULL, FALSE}};
 
-gboolean z_charset_test(gchar *valid, gchar *test, gboolean *result)
+gboolean z_charset_test(const gchar *valid, const gchar *test, gboolean *result)
 {
   ZCharSet charset;
 

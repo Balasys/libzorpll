@@ -124,7 +124,7 @@ z_object_check_compatible(ZObject *self, ZClass *class_)
  * @returns self
  **/
 static inline ZObject *
-z_object_check_compatible(ZObject *self, ZClass *class_ G_GNUC_UNUSED)
+z_object_check_compatible(ZObject *self, ZClass * /* class_ */)
 {
   return self;
 }

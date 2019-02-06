@@ -51,7 +51,7 @@
  * @returns whether further callbacks should be delivered
  **/
 static gboolean 
-z_listener_accept(gboolean timed_out G_GNUC_UNUSED, gpointer data)
+z_listener_accept(gboolean /* timed_out */, gpointer data)
 {
   ZListener *self = (ZListener *) data;
   ZSockAddr *client, *dest;

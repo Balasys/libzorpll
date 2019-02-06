@@ -105,7 +105,7 @@ z_poll_source_prepare(GSource *s, gint *timeout)
  * @todo FIXME: I think this function should check the value of self->wakeup
  **/
 static gboolean
-z_poll_source_check(GSource *s G_GNUC_UNUSED)
+z_poll_source_check(GSource */* s */)
 {
   z_enter();
   z_return(FALSE);
@@ -125,8 +125,8 @@ z_poll_source_check(GSource *s G_GNUC_UNUSED)
  **/
 static gboolean
 z_poll_source_dispatch(GSource *s,
-                       GSourceFunc  callback G_GNUC_UNUSED,
-                       gpointer  user_data G_GNUC_UNUSED)
+                       GSourceFunc  /* callback */,
+                       gpointer  /* user_data */)
 {
   ZPollSource *self = (ZPollSource *) s;
   
@@ -266,7 +266,7 @@ z_poll_add_stream(ZPoll *s, ZStream *stream)
  * @param[in] stream stream to be removed
  **/
 void
-z_poll_remove_stream(ZPoll *s G_GNUC_UNUSED, ZStream *stream)
+z_poll_remove_stream(ZPoll */* s */, ZStream *stream)
 {
   z_enter();
   z_stream_detach_source(stream);

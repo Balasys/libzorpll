@@ -220,7 +220,7 @@ z_stackdump_log_symbols(void)
  * This function is Linux & x86 specific.
  **/
 void
-z_stackdump_log(ZSignalContext *p G_GNUC_UNUSED)
+z_stackdump_log(ZSignalContext * /* p */)
 {
   z_stackdump_log_context(p);
   z_stackdump_log_backtrace(p);
@@ -234,11 +234,14 @@ z_stackdump_log(ZSignalContext *p G_GNUC_UNUSED)
 #include <windows.h>
 #include <tchar.h>
 #include <Dbghelp.h>
+#include <KnownFolders.h>
+#include <ShlObj.h>
 #include <iphlpapi.h>
 #include <psapi.h>
 #include <stdio.h>
 #include <Userenv.h>
 
+#include <memory>
 #include <string>
 
 /* Visual Studio intelli sense needs this */
@@ -275,6 +278,26 @@ typedef BOOL (WINAPI *LPFNMiniDumpWriteDump)(
   PMINIDUMP_CALLBACK_INFORMATION CallbackParam
 );
 
+
+std::string
+z_format_error_code_to_string(const DWORD &error_code)
+{
+  LPSTR messageBuffer = nullptr;
+  size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                               nullptr, error_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, nullptr);
+  std::string error_message(messageBuffer, size);
+  LocalFree(messageBuffer);
+  return error_message;
+}
+
+static inline HANDLE
+z_stackdump_check_handle(HANDLE h)
+{
+  if (h == INVALID_HANDLE_VALUE)
+    return nullptr;
+  return h;
+}
+
 /** 
  * This function attempts to write out the memory dump of an exception into a [modulename].dmp file.
  *
@@ -282,12 +305,11 @@ typedef BOOL (WINAPI *LPFNMiniDumpWriteDump)(
  * 
  * The dump will contain the whole memory of process where the excetpion come off.
  */
-DWORD
+void
 z_write_minidump(EXCEPTION_POINTERS* exception_pointers)
 {
-  DWORD ret = ERROR_SUCCESS;
-  HANDLE file = NULL;  
-  HANDLE process = NULL;
+  DWORD error_code = ERROR_SUCCESS;
+  std::string error_msg;
   MINIDUMP_EXCEPTION_INFORMATION exp_param;
   LPFNMiniDumpWriteDump lpfnMiniDumpWriteDump = NULL;
   HMODULE hMiniDump;
@@ -301,44 +323,44 @@ z_write_minidump(EXCEPTION_POINTERS* exception_pointers)
     lpfnMiniDumpWriteDump = (LPFNMiniDumpWriteDump) GetProcAddress(hMiniDump, "MiniDumpWriteDump");
   else
   {
-    ret = GetLastError();
-    z_log(NULL, CORE_ERROR, 0, _T("Failed to load library dbghelp.dll: error='%08x'"), ret);
-    goto clean_up;
+    error_code = GetLastError();
+    error_msg = z_format_error_code_to_string(error_code);
+    z_log(NULL, CORE_ERROR, 0, _T("Failed to load library dbghelp.dll: error code='%08x', error message=%s"), error_code, error_msg);
+    return;
   }
   if (!lpfnMiniDumpWriteDump)
     {
-      ret = GetLastError();
-      z_log(NULL, CORE_ERROR, 0, _T("Failed to get process address of MiniDumpWriteDump: error='%08x'"), ret);
-      goto clean_up;
+      error_code = GetLastError();
+      error_msg = z_format_error_code_to_string(error_code);
+      z_log(NULL, CORE_ERROR, 0, _T("Failed to get process address of MiniDumpWriteDump: error code='%08x', error message=%s"), error_code, error_msg);
+      return;
     }
-//  process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, GetCurrentProcessId());
-  process = GetCurrentProcess();
-  if (process==NULL)
+  std::unique_ptr<void /* HANDLE */, decltype(&CloseHandle)> process(GetCurrentProcess(), CloseHandle);
+  if (!process)
     {
-      ret = GetLastError();
-      z_log(NULL, CORE_ERROR, 0, _T("Failed to open process self: error='%08x'"), ret);
-      goto clean_up;
+      error_code = GetLastError();
+      error_msg = z_format_error_code_to_string(error_code);
+      z_log(NULL, CORE_ERROR, 0, _T("Failed to open process self: error code='%08x', error message=%s"), error_code, error_msg);
+      return;
     }
-  file = CreateFile(dump_file_name.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-  if (file==NULL) 
+  std::unique_ptr<void /* HANDLE */, decltype(&CloseHandle)> file(z_stackdump_check_handle(CreateFile(
+    dump_file_name.c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr)),
+    CloseHandle);
+  if (!file)
     {
-      ret = GetLastError();
-      z_log(NULL, CORE_ERROR, 0, _T("Failed to create file for minidump: error='%08x'"), ret);
-      goto clean_up;
+      error_code = GetLastError();
+      error_msg = z_format_error_code_to_string(error_code);
+      z_log(NULL, CORE_ERROR, 0, _T("Failed to create file for minidump: error code='%08x', error message=%s"), error_code, error_msg);
+      return;
     }
-  if (!lpfnMiniDumpWriteDump(process, GetCurrentProcessId(), file, MiniDumpWithFullMemory, &exp_param, NULL, NULL)) 
+  if (!lpfnMiniDumpWriteDump(process.get(), GetCurrentProcessId(), file.get(), MiniDumpWithFullMemory, &exp_param, NULL, NULL))
     {
-      ret = GetLastError();
-      z_log(NULL, CORE_ERROR, 0, _T("Failed to call MiniDumpWrite dump: error='%08x'"), ret);
-      goto clean_up;
+      error_code = GetLastError();
+      error_msg = z_format_error_code_to_string(error_code);
+      z_log(NULL, CORE_ERROR, 0, _T("Failed to call MiniDumpWrite dump: error code='%08x', error message=%s"), error_code, error_msg);
+      return;
     }
   z_log(NULL, CORE_ERROR, 0, _T("Minidump creation succeeded! filename='%s'"), dump_file_name.c_str());
- clean_up:
-  if(file != NULL)
-    CloseHandle(file);
-  if(process != NULL)
-    CloseHandle(process);
-  return ret;
 }
 
 /**
@@ -676,23 +698,42 @@ z_unhandled_exception_filter (PEXCEPTION_POINTERS exception_info_ptr)
     SYSTEMTIME stLocalTime;
     DWORD ret;
 
-    /* Cut off the extension .dmp */
-    dump_file_name.resize(dump_file_name.length() - 4);
+    try
+      {
+        /* Cut off the extension .dmp */
+        dump_file_name.resize(dump_file_name.length() - 4);
 
-    GetLocalTime( &stLocalTime );
-    char file_name[MAX_PATH];
+        std::size_t last_backslash = dump_file_name.find_last_of("\\");
+        dump_file_name = dump_file_name.substr(last_backslash + 1);
 
-    _snprintf( file_name, MAX_PATH, "%s-%s-%04d%02d%02d-%02d%02d%02d-%ld-%ld.dmp",
-                    dump_file_name.c_str(), program_version.c_str(),
-                    stLocalTime.wYear, stLocalTime.wMonth, stLocalTime.wDay,
-                    stLocalTime.wHour, stLocalTime.wMinute, stLocalTime.wSecond,
-                    GetCurrentProcessId(), GetCurrentThreadId());
+        PWSTR home_path = nullptr;
+        HRESULT hr = SHGetKnownFolderPath(FOLDERID_Profile, 0, nullptr, &home_path);
+        if (FAILED(hr))
+          throw std::runtime_error("user's home directory not found");
 
-    dump_file_name = file_name;
+        GetLocalTime( &stLocalTime );
+        char file_name[MAX_PATH];
 
-    ret = z_write_minidump(exception_info_ptr);
-    if (ret != ERROR_SUCCESS)
-      z_log(NULL, CORE_ERROR, 0, _T("Failed to write minidump file: %08x"), ret);
+        _snprintf( file_name, MAX_PATH, "%ls\\%s-%s-%04d%02d%02d-%02d%02d%02d-%ld-%ld.dmp",
+                        home_path, dump_file_name.c_str(), program_version.c_str(),
+                        stLocalTime.wYear, stLocalTime.wMonth, stLocalTime.wDay,
+                        stLocalTime.wHour, stLocalTime.wMinute, stLocalTime.wSecond,
+                        GetCurrentProcessId(), GetCurrentThreadId());
+
+        CoTaskMemFree(home_path);
+
+        dump_file_name = file_name;
+
+        z_write_minidump(exception_info_ptr);
+      }
+    catch (const std::out_of_range &except)
+      {
+        z_log(NULL, CORE_ERROR, 0, ("Failed to find dump file path: path='%s'"), dump_file_name);
+      }
+    catch (const std::runtime_error &except)
+      {
+        z_log(NULL, CORE_ERROR, 0, ("Failed to write minidump file: error='%s'"), except.what());
+      }
   }
   z_generate_exception_report(exception_info_ptr);
   if (previous_filter)
@@ -727,6 +768,7 @@ z_set_unhandled_exception_filter(void)
         }
     }
   dump_file_name = file_name;
+
 #ifndef _SYSCRT
   return 0; 
 #else

@@ -71,7 +71,7 @@ typedef struct _ZStreamSsl
 extern ZClass ZStreamSsl__class;
 
 static gboolean
-z_stream_ssl_read_callback(ZStream *stream G_GNUC_UNUSED, GIOCondition poll_cond, gpointer s)
+z_stream_ssl_read_callback(ZStream */* stream */, GIOCondition poll_cond, gpointer s)
 {
   ZStreamSsl *self = Z_CAST(s, ZStreamSsl);
   gboolean rc;
@@ -85,7 +85,7 @@ z_stream_ssl_read_callback(ZStream *stream G_GNUC_UNUSED, GIOCondition poll_cond
 }
 
 static gboolean
-z_stream_ssl_write_callback(ZStream *stream G_GNUC_UNUSED, GIOCondition poll_cond, gpointer s)
+z_stream_ssl_write_callback(ZStream */* stream */, GIOCondition poll_cond, gpointer s)
 {
   ZStreamSsl *self = Z_CAST(s, ZStreamSsl);
   gboolean rc;
@@ -99,7 +99,7 @@ z_stream_ssl_write_callback(ZStream *stream G_GNUC_UNUSED, GIOCondition poll_con
 }
 
 static gboolean
-z_stream_ssl_pri_callback(ZStream *stream G_GNUC_UNUSED, GIOCondition poll_cond, gpointer s)
+z_stream_ssl_pri_callback(ZStream */* stream */, GIOCondition poll_cond, gpointer s)
 {
   ZStreamSsl *self = Z_CAST(s, ZStreamSsl);
   gboolean rc;
@@ -372,7 +372,7 @@ z_stream_ssl_shutdown_method(ZStream *s, int i, GError **error)
 static gboolean
 z_stream_ssl_ctrl_method(ZStream *s, guint function, gpointer value, guint vlen)
 {
-  ZStreamSsl *self G_GNUC_UNUSED = Z_CAST(s, ZStreamSsl);
+  ZStreamSsl *self = Z_CAST(s, ZStreamSsl);
   gboolean ret = FALSE;
   
   z_enter();
@@ -429,7 +429,7 @@ z_stream_ssl_ctrl_method(ZStream *s, guint function, gpointer value, guint vlen)
 }
 
 static gboolean 
-z_stream_ssl_watch_prepare(ZStream *s, GSource *src G_GNUC_UNUSED, gint *timeout)
+z_stream_ssl_watch_prepare(ZStream *s, GSource */* src */, gint *timeout)
 {
   ZStreamSsl *self = Z_CAST(s, ZStreamSsl);
 
@@ -468,7 +468,7 @@ z_stream_ssl_watch_prepare(ZStream *s, GSource *src G_GNUC_UNUSED, gint *timeout
 }
 
 static gboolean 
-z_stream_ssl_watch_check(ZStream *s, GSource *src G_GNUC_UNUSED)
+z_stream_ssl_watch_check(ZStream *s, GSource */* src */)
 {
   ZStreamSsl *self = Z_CAST(s, ZStreamSsl);
 
@@ -485,7 +485,7 @@ z_stream_ssl_watch_check(ZStream *s, GSource *src G_GNUC_UNUSED)
 }
 
 static gboolean 
-z_stream_ssl_watch_dispatch(ZStream *s, GSource *src G_GNUC_UNUSED)
+z_stream_ssl_watch_dispatch(ZStream *s, GSource */* src */)
 {
   ZStreamSsl *self = Z_CAST(s, ZStreamSsl);
   gboolean rc = TRUE;

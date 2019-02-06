@@ -228,7 +228,7 @@ z_timeout_source_check(GSource *s)
  * @param[in]      user_data pointer to be passed to the callback function
  **/
 static gboolean
-z_timeout_source_dispatch(GSource     *s G_GNUC_UNUSED,
+z_timeout_source_dispatch(GSource     * /* s */,
                           GSourceFunc  callback,
                           gpointer     user_data)
 {

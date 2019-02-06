@@ -114,7 +114,7 @@ z_thread_iterate_callbacks(ZThread *self, ZThreadCallback *p)
  * @param     user_data pointer to pass to real thread function (unused)
  **/
 static void
-z_thread_func_core(ZThread *self, gpointer user_data G_GNUC_UNUSED)
+z_thread_func_core(ZThread *self, gpointer /* user_data */)
 {
   g_private_set(&current_thread, self);
   self->thread = g_thread_self();

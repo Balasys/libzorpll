@@ -20,7 +20,7 @@ int
 test_stream_unget(void)
 {
   ZStream *stream;
-  gchar *buf = "12345678901234567890";
+  const gchar *buf = "12345678901234567890";
   gchar testbuf[20];
   gint fds[2], i;
   gsize br;

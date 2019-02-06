@@ -164,7 +164,7 @@ z_connect(gint fd, ZSockAddr *remote, guint32 sock_flags)
  * @returns GIOStatus instance
  **/
 GIOStatus
-z_disconnect(int fd, guint32 sock_flags G_GNUC_UNUSED)
+z_disconnect(int fd, guint32 /* sock_flags */)
 {
   gint rc;
   struct sockaddr sa;
@@ -412,31 +412,31 @@ z_do_ll_bind(int fd, struct sockaddr *sa, socklen_t salen, guint32 sock_flags)
 }
 
 gint
-z_do_ll_accept(int fd, struct sockaddr *sa, socklen_t *salen, guint32 sock_flags G_GNUC_UNUSED)
+z_do_ll_accept(int fd, struct sockaddr *sa, socklen_t *salen, guint32 /* sock_flags */)
 {
   return accept(fd, sa, salen);
 }
 
 gint
-z_do_ll_connect(int fd, struct sockaddr *sa, socklen_t salen, guint32 sock_flags G_GNUC_UNUSED)
+z_do_ll_connect(int fd, struct sockaddr *sa, socklen_t salen, guint32 /* sock_flags */)
 {
   return connect(fd, sa, salen);
 }
 
 gint
-z_do_ll_listen(int fd, gint backlog, guint32 sock_flags G_GNUC_UNUSED)
+z_do_ll_listen(int fd, gint backlog, guint32 /* sock_flags */)
 {
   return listen(fd, backlog);
 }
 
 gint
-z_do_ll_getsockname(int fd, struct sockaddr *sa, socklen_t *salen, guint32 sock_flags G_GNUC_UNUSED)
+z_do_ll_getsockname(int fd, struct sockaddr *sa, socklen_t *salen, guint32 /* sock_flags */)
 {
   return getsockname(fd, sa, salen);
 }
 
 gint
-z_do_ll_getpeername(int fd, struct sockaddr *sa, socklen_t *salen, guint32 sock_flags G_GNUC_UNUSED)
+z_do_ll_getpeername(int fd, struct sockaddr *sa, socklen_t *salen, guint32 /* sock_flags */)
 {
   return getpeername(fd, sa, salen);
 }

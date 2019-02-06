@@ -16,7 +16,7 @@ public:
     {
     }
 
-  bool testcase(char *pw, char *salt, char *expected)
+  bool testcase(const char *pw, const char *salt, const char *expected)
     {
       char result[128];
 

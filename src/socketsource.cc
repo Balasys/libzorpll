@@ -138,13 +138,15 @@ z_socket_source_dispatch(GSource     *s,
  * ZSocketSource's finalize function, see GSourceFuncs documentation for explanation.
  **/
 void
-z_socket_source_finalize(GSource *source G_GNUC_UNUSED)
+z_socket_source_finalize(GSource *source)
 {
 #ifdef G_OS_WIN32
   ZSocketSource *self = (ZSocketSource *) source;
   
   z_trace(NULL, "WinSock: Event #%d destroyed at %s line %d",self->poll.fd, __FILE__, __LINE__);
   WSACloseEvent(reinterpret_cast<HANDLE>(self->poll.fd)); //(HANDLE)
+#else
+  (void)source;
 #endif
 }
 
