@@ -105,9 +105,9 @@ z_stackdump_log_context(ZSignalContext *p)
 
 #else
 
-#define z_stackdump_log_stack(p) 
-#define z_stackdump_log_backtrace(p)
-#define z_stackdump_log_context(p)
+static inline void z_stackdump_log_stack(ZSignalContext * /* p */) {}
+static inline void z_stackdump_log_backtrace(ZSignalContext * /* p */) {}
+static inline void z_stackdump_log_context(ZSignalContext * /* p */) {}
 
 #endif
 
@@ -220,7 +220,7 @@ z_stackdump_log_symbols(void)
  * This function is Linux & x86 specific.
  **/
 void
-z_stackdump_log(ZSignalContext * /* p */)
+z_stackdump_log(ZSignalContext *p)
 {
   z_stackdump_log_context(p);
   z_stackdump_log_backtrace(p);
