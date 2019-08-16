@@ -105,6 +105,9 @@
     <ClCompile Include="..\..\..\src\streamssl.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\string.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\thread.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
