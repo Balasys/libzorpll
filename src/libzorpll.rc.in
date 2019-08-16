@@ -18,11 +18,11 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "Comments", "\0"
-            VALUE "CompanyName", "BalaBit IT Ltd.\0"
+            VALUE "CompanyName", "BalaSys IT Ltd.\0"
             VALUE "FileDescription", "Low level library for Zorp\0"
             VALUE "FileVersion", "@ZORPLIBLL_VERSION@\0"
             VALUE "InternalName", "@PACKAGE@-@VERSION@\0"
-            VALUE "LegalCopyright", "Copyright © 2000-2005 BalaBit IT Ltd.\0"
+            VALUE "LegalCopyright", "Copyright © 2000-2005 BalaBit IT Ltd., 2015-2017 BalaSys IT Ltd.\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "libzorpll.dll\0"
             VALUE "PrivateBuild", "\0"

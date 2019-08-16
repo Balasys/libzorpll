@@ -35,18 +35,29 @@ test_connected(ZStream *fdstream G_GNUC_UNUSED, GError *error G_GNUC_UNUSED, gpo
   test_done();
 }
 
+class TempFile
+{
+public:
+   TempFile() { name = tmpnam(NULL); };
+   ~TempFile() { unlink(name); }
+   char *get() { return name; }
+private:
+   char *name;
+};
+
 BOOST_AUTO_TEST_CASE(test_conns)
 {
   ZSockAddr *a;
   ZListener *l;
   ZConnector *c;
   ZSockAddr *dest;
+  TempFile socket_name;
 
   loop = g_main_loop_new(NULL, TRUE);
 
-  a = z_sockaddr_unix_new("sock");
+  a = z_sockaddr_unix_new(socket_name.get());
   l = z_stream_listener_new("sessionid", a, 0, 255, test_accepted, NULL);
-  BOOST_CHECK(z_listener_start(l));
+  BOOST_REQUIRE(z_listener_start(l));
 
   c = z_stream_connector_new("sessionid", NULL, a, 0, test_connected, NULL, NULL);
   z_connector_start(c, &dest);

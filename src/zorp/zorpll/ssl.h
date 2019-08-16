@@ -88,12 +88,16 @@ void z_ssl_session_unref(ZSSLSession *self);
 
 gchar *z_ssl_get_error_str(gchar *buf, int buflen);
 
-BIO *z_ssl_bio_new(ZStream *stream);
+typedef struct _ZStreamBio
+{
+  BIO *super;
+  ZStream *stream;
+} ZStreamBio;
+
+ZStreamBio *z_ssl_bio_new(ZStream *stream);
 
 #ifdef __cplusplus
 }
-
-bool z_ssl_ctx_setup_ecdh(SSL_CTX *ctx, const char *ecdh_curve_name = SN_X9_62_prime256v1);
 
 #endif
 

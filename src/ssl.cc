@@ -20,6 +20,8 @@
 #include <zorpll/log.h>
 #include <zorpll/thread.h>
 
+#include <memory>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifdef HAVE_UNISTD_H
@@ -34,15 +36,6 @@
 #include <openssl/engine.h>
 gchar *crypto_engine = NULL;
 #endif
-
-static int ssl_initialized = 0;
-
-#if GLIB_MINOR_VERSION >=32
-static GMutex *ssl_mutexes;
-#else
-static GStaticMutex *ssl_mutexes;
-#endif
-static int mutexnum;
 
 /**
  * Fetch OpenSSL error code and generate a string interpretation of it.
@@ -63,7 +56,7 @@ z_ssl_get_error_str(gchar *buf, int buflen)
   do {
     e = new_error;
     new_error= ERR_get_error();
-    ++count; 
+    ++count;
   } while (new_error);
 
   l = ERR_GET_LIB(e);
@@ -75,99 +68,14 @@ z_ssl_get_error_str(gchar *buf, int buflen)
   rs = ERR_reason_error_string(e);
 
   if (count)
-    g_snprintf(buf, buflen, "error:%08lX:%s:lib(%lu):%s:func(%lu):%s:reason(%lu), supressed %d messages", e, ls ? ls : "(null)", l, fs ? fs : "(null)", f, rs ? rs : "(null)", r, count);
+    g_snprintf(buf, buflen,
+               "error:%08lX:%s:lib(%lu):%s:func(%lu):%s:reason(%lu), supressed %d messages",
+               e, ls ? ls : "(null)", l, fs ? fs : "(null)", f, rs ? rs : "(null)", r, count);
   else
-    g_snprintf(buf, buflen, "error:%08lX:%s:lib(%lu):%s:func(%lu):%s:reason(%lu)", e, ls ? ls : "(null)", l, fs ? fs : "(null)", f, rs ? rs : "(null)", r);
+    g_snprintf(buf, buflen,
+               "error:%08lX:%s:lib(%lu):%s:func(%lu):%s:reason(%lu)",
+               e, ls ? ls : "(null)", l, fs ? fs : "(null)", f, rs ? rs : "(null)", r);
   return buf;
-}
-
-
-/**
- * Callback used by OpenSSL to lock/unlock mutexes.
- *
- * @param[in] mode whether to lock or unlock the mutex
- * @param[in] n number of mutex
- * @param     file unused
- * @param     line unused
- **/
-static void
-z_ssl_locking_callback(int mode, int n, const char *file G_GNUC_UNUSED, int line G_GNUC_UNUSED)
-{
-  z_enter();
-  if (n >= mutexnum)
-    {
-      /*LOG
-        This message indicates that the OpenSSL library is broken, since it tried
-        to use more mutexes than it originally requested. Check your OpenSSL library version.
-       */
-      z_log(NULL, CORE_ERROR, 4, "SSL requested an out of bounds mutex; max='%d', n='%d'", mutexnum, n);
-    }
-
-  if (mode & CRYPTO_LOCK)
-    {
-      z_trace(NULL, "Mutex %d locked", n);
-      #if GLIB_MINOR_VERSION >=32
-      g_mutex_lock(&ssl_mutexes[n]);
-      #else
-      g_static_mutex_lock(&ssl_mutexes[n]);
-      #endif
-    }
-  else
-    {
-      z_trace(NULL,  "Mutex %d unlocked", n);
-      #if GLIB_MINOR_VERSION >= 32
-      g_mutex_unlock(&ssl_mutexes[n]);
-      #else
-      g_static_mutex_unlock(&ssl_mutexes[n]);
-      #endif
-    }
-  z_return();
-}
-
-/**
- * Initialize mutexes and set mutex locking callback for OpenSSL.
- **/
-static void
-z_ssl_init_mutexes(void)
-{
-  z_enter();
-  mutexnum = CRYPTO_num_locks();
-  #if GLIB_MINOR_VERSION >=32
-  ssl_mutexes = g_new0(GMutex, mutexnum);
-  #else
-  ssl_mutexes = g_new0(GStaticMutex, mutexnum);
-  #endif
-  
-  z_enter();
-  CRYPTO_set_locking_callback(z_ssl_locking_callback);
-  z_return();
-}
-
-/**
- * Free OpenSSL error queue.
- *
- * @param thread unused
- * @param user_data unused
- *
- * This function frees the OpenSSL error queue for the current thread.
- **/
-static void
-z_ssl_remove_error_state(ZThread *thread G_GNUC_UNUSED, gpointer user_data G_GNUC_UNUSED)
-{
-  ERR_remove_state(0);
-}
-
-/**
- * Process ID callback function for OpenSSL.
- *
- * @returns pid
- *
- * @note See crypto_set_id_callback(3) for notes on what this is supposed to do.
- **/
-static unsigned long
-z_ssl_get_id(void)
-{
-  return (unsigned long) g_thread_self();
 }
 
 /**
@@ -177,12 +85,6 @@ void
 z_ssl_init()
 {
   z_enter();
-  if (ssl_initialized)
-    z_return();
-  CRYPTO_set_id_callback(z_ssl_get_id);
-  SSL_library_init();
-  SSL_load_error_strings();
-  SSLeay_add_all_algorithms();
 
 #if ZORPLIB_ENABLE_SSL_ENGINE
   ENGINE_load_builtin_engines();
@@ -230,9 +132,6 @@ z_ssl_init()
     }
 #endif
   
-  z_ssl_init_mutexes();
-  z_thread_register_stop_callback((GFunc) z_ssl_remove_error_state, NULL);
-  ssl_initialized = 1;
   z_return();
 }
 
@@ -242,7 +141,6 @@ z_ssl_init()
 void
 z_ssl_destroy(void)
 {
-  ssl_initialized = 0;
 }
 
 /**
@@ -255,18 +153,15 @@ z_ssl_destroy(void)
  *
  * @todo FIXME-DOC: Document this once proper OpenSSL documentation is discovered.
  **/
-static int
-z_ssl_x509_store_lookup(X509_STORE *store, int type,
-                        X509_NAME *name, X509_OBJECT *obj)
+static X509_OBJECT *
+z_ssl_x509_store_lookup(X509_STORE *store, X509_LOOKUP_TYPE type, X509_NAME *name)
 {
-  X509_STORE_CTX store_ctx;
-  int rc;
-
   z_enter();
-  X509_STORE_CTX_init(&store_ctx, store, NULL, NULL);
-  rc = X509_STORE_get_by_subject(&store_ctx, type, name, obj);
-  X509_STORE_CTX_cleanup(&store_ctx);
-  z_return(rc);
+  X509_STORE_CTX *store_ctx = X509_STORE_CTX_new();
+  X509_STORE_CTX_init(store_ctx, store, NULL, NULL);
+  X509_OBJECT *obj = X509_STORE_CTX_get_obj_by_subject(store_ctx, type, name);
+  X509_STORE_CTX_free(store_ctx);
+  z_return(obj);
 }
 
 int
@@ -276,11 +171,10 @@ z_ssl_verify_crl(int ok,
                  X509_STORE *crl_store, 
                  const gchar *session_id)
 {
-  X509_OBJECT obj;
+  X509_OBJECT *obj;
   X509_NAME *subject, *issuer;
   X509_CRL *crl;
   char subject_name[512], issuer_name[512];
-  int rc;
 
   z_enter(); 
 
@@ -290,14 +184,10 @@ z_ssl_verify_crl(int ok,
   issuer = X509_get_issuer_name(xs);
   X509_NAME_oneline(issuer, issuer_name, sizeof(issuer_name));
  
-  memset((char *)&obj, 0, sizeof(obj));
-  
-  rc = z_ssl_x509_store_lookup(crl_store, X509_LU_CRL, subject, &obj);
-  
-  crl = obj.data.crl;
-  if (rc > 0 && crl != NULL)
+  obj = z_ssl_x509_store_lookup(crl_store, X509_LU_CRL, subject);
+  crl = X509_OBJECT_get0_X509_CRL(obj);
+  if (crl)
     {
-
       /*
        * Log information about CRL
        * (A little bit complicated because of ASN.1 and BIOs...)
@@ -309,9 +199,9 @@ z_ssl_verify_crl(int ok,
 
       bio = BIO_new(BIO_s_mem());
       BIO_printf(bio, "lastUpdate='");
-      ASN1_UTCTIME_print(bio, X509_CRL_get_lastUpdate(crl));
+      ASN1_UTCTIME_print(bio, X509_CRL_get0_lastUpdate(crl));
       BIO_printf(bio, "', nextUpdate='");
-      ASN1_UTCTIME_print(bio, X509_CRL_get_nextUpdate(crl));
+      ASN1_UTCTIME_print(bio, X509_CRL_get0_nextUpdate(crl));
       BIO_printf(bio, "'");
       n = BIO_pending(bio);
       
@@ -334,13 +224,13 @@ z_ssl_verify_crl(int ok,
            */
           z_log(session_id, CORE_ERROR, 1, "Invalid signature on CRL; issuer='%s'", subject_name);
           X509_STORE_CTX_set_error(ctx, X509_V_ERR_CRL_SIGNATURE_FAILURE);
-          X509_OBJECT_free_contents(&obj);
+          X509_OBJECT_free(obj);
           EVP_PKEY_free(pkey);
           z_return(FALSE);
         }
       EVP_PKEY_free(pkey);
 
-      i = X509_cmp_current_time(X509_CRL_get_nextUpdate(crl));
+      i = X509_cmp_current_time(X509_CRL_get0_nextUpdate(crl));
       if (i == 0)
         {
           /*LOG
@@ -350,7 +240,7 @@ z_ssl_verify_crl(int ok,
           z_log(session_id, CORE_ERROR, 1, "CRL has invalid nextUpdate field; issuer='%s'", subject_name);
           
           X509_STORE_CTX_set_error(ctx, X509_V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD);
-          X509_OBJECT_free_contents(&obj);
+          X509_OBJECT_free(obj);
           z_return(FALSE);
         }
       if (i < 0)
@@ -361,40 +251,37 @@ z_ssl_verify_crl(int ok,
            */
           z_log(session_id, CORE_ERROR, 1, "CRL is expired; issuer='%s'", subject_name);
           X509_STORE_CTX_set_error(ctx, X509_V_ERR_CRL_HAS_EXPIRED);
-          X509_OBJECT_free_contents(&obj);
+          X509_OBJECT_free(obj);
           z_return(FALSE);
         }
-      X509_OBJECT_free_contents(&obj);
+      X509_OBJECT_free(obj);
     }
 
-  memset((char *)&obj, 0, sizeof(obj));
-  rc = z_ssl_x509_store_lookup(crl_store, X509_LU_CRL, issuer, &obj);
-  crl = obj.data.crl;
-  if (rc > 0 && crl != NULL)
+  obj = z_ssl_x509_store_lookup(crl_store, X509_LU_CRL, issuer);
+  crl = X509_OBJECT_get0_X509_CRL(obj);
+  if (crl)
     {
       X509_REVOKED *revoked;
-      long serial;
       int i, n;
       
       n = sk_X509_REVOKED_num(X509_CRL_get_REVOKED(crl));
       for (i = 0; i < n; i++)
         {
           revoked = sk_X509_REVOKED_value(X509_CRL_get_REVOKED(crl), i);
-          if (ASN1_INTEGER_cmp(revoked->serialNumber, X509_get_serialNumber(xs)) == 0)
+          if (ASN1_INTEGER_cmp(X509_REVOKED_get0_serialNumber(revoked), X509_get0_serialNumber(xs)) == 0)
             {
-              serial = ASN1_INTEGER_get(revoked->serialNumber);
               /*LOG
                 This message indicates that a certificate verification failed,
                 because the issuing CA revoked it in its Certificate Revocation
                 List.
                */
               z_log(session_id, CORE_ERROR, 1, "Certificate revoked by CRL; issuer='%s', serial=0x%lX",
-                    issuer_name, serial);
-              X509_OBJECT_free_contents(&obj);
+                    issuer_name, ASN1_INTEGER_get(X509_REVOKED_get0_serialNumber(revoked)));
+              X509_OBJECT_free(obj);
               z_return(FALSE);
             }
         }
-      X509_OBJECT_free_contents(&obj);
+      X509_OBJECT_free(obj);
     }
   z_return(ok);
 }
@@ -411,7 +298,7 @@ z_ssl_verify_callback(int ok, X509_STORE_CTX *ctx)
   int forced_ok = FALSE;
 
   z_enter();
-  ssl = (SSL *) X509_STORE_CTX_get_app_data(ctx);
+  ssl = (SSL *) X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
   verify_data = (ZSSLSession *) SSL_get_app_data(ssl);
 
   xs = X509_STORE_CTX_get_current_cert(ctx);
@@ -621,45 +508,6 @@ z_ssl_set_trusted_ca_list(SSL_CTX *ctx, gchar *ca_path)
   z_return(TRUE);
 }
 
-bool
-z_ssl_ctx_setup_ecdh(SSL_CTX *ctx, const char *ecdh_curve_name)
-{
-  int ecdh_nid = OBJ_sn2nid(ecdh_curve_name);
-  if (ecdh_nid == NID_undef)
-    {
-      z_log(NULL, CORE_ERROR, 6, "Unknown curve name; name='%s'", ecdh_curve_name);
-      return false;
-    }
-
-#if OPENSSL_VERSION_NUMBER > 0x10100000L
-  /* No need to setup as ECDH auto is the default */
-#elif OPENSSL_VERSION_NUMBER > 0x10002000L
-  if (SSL_CTX_set_ecdh_auto(ctx, 1) != 1)
-    {
-      z_log(NULL, CORE_ERROR, 6, "Unable to create curve; name='%s'", ecdh_curve_name);
-      return false;
-    }
-#elif OPENSSL_VERSION_NUMBER > 0x10001000L
-  EC_KEY *ecdh = EC_KEY_new_by_curve_name(ecdh_nid);
-  if (!ecdh)
-    {
-      z_log(NULL, CORE_ERROR, 6, "Unable to set curve");
-      return false;
-    }
-
-  if (SSL_CTX_set_tmp_ecdh(ctx, ecdh) != 1)
-    {
-      z_log(NULL, CORE_ERROR, 6, "Unable to set curve");
-      return false;
-    }
-  EC_KEY_free(ecdh);
-#else
-  return false;
-#endif
-
-  return true;
-}
-
 enum SSLContextType
 {
   WEAK,
@@ -699,13 +547,6 @@ z_ssl_create_ctx(const char *session_id, int mode, SSLContextType ctx_type)
     {
     case HARDENED:
       SSL_CTX_set_options(ctx, SSL_OP_SINGLE_ECDH_USE | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1);
-
-      if (!z_ssl_ctx_setup_ecdh(ctx))
-        {
-          SSL_CTX_free(ctx);
-          z_return(NULL);
-        }
-
       SSL_CTX_set_cipher_list(ctx, "EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5");
     break;
 
@@ -1074,11 +915,12 @@ z_ssl_session_new(const char *session_id,
 ZSSLSession *
 z_ssl_session_new_ssl(SSL *ssl)
 {
+  if (SSL_up_ref(ssl) == 0)
+    return NULL;
+
   ZSSLSession *self = g_new0(ZSSLSession, 1);
-  
   self->ref_cnt = 1;
   self->ssl = ssl;
-  CRYPTO_add(&ssl->references, 1, CRYPTO_LOCK_SSL);
   return self;
 }
         
@@ -1113,16 +955,10 @@ z_ssl_session_unref(ZSSLSession *self)
 
 /* SSL BIO functions */
 
-typedef struct _ZStreamBio
-{
-  BIO super;
-  ZStream *stream;
-} ZStreamBio;
-
 int
 z_stream_bio_write(BIO *bio, const char *buf, int buflen)
 {
-  ZStreamBio *self = (ZStreamBio *)bio;
+  ZStreamBio *self = static_cast<ZStreamBio *>(BIO_get_data(bio));
   int rc = -1;
   GIOStatus ret;
   gsize write_size;
@@ -1147,7 +983,7 @@ z_stream_bio_write(BIO *bio, const char *buf, int buflen)
 int
 z_stream_bio_read(BIO *bio, char *buf, int buflen)
 {
-  ZStreamBio *self = (ZStreamBio *)bio;
+  ZStreamBio *self = static_cast<ZStreamBio *>(BIO_get_data(bio));
   int rc = -1;
   GIOStatus ret;
   gsize read_size;
@@ -1191,11 +1027,11 @@ z_stream_bio_ctrl(BIO *bio, int cmd, long num, void *ptr G_GNUC_UNUSED)
   switch (cmd)
     {
     case BIO_CTRL_GET_CLOSE:
-      ret = bio->shutdown;
+      ret = BIO_get_shutdown(bio);
       break;
       
     case BIO_CTRL_SET_CLOSE:
-      bio->shutdown = (int)num;
+      BIO_set_shutdown(bio, static_cast<int>(num));
       break;
       
     case BIO_CTRL_DUP:
@@ -1222,52 +1058,69 @@ int
 z_stream_bio_create(BIO *bio)
 {
   z_enter();
-  bio->init = 1;
-  bio->num = 0;
-  bio->ptr = NULL;
-  bio->flags = 0;
+  BIO_set_init(bio, 1);
+  BIO_set_flags(bio, 0);
+  BIO_set_data(bio, nullptr);
+  BIO_set_shutdown(bio, 0);
   z_return(1);
 }
 
 int
 z_stream_bio_destroy(BIO *bio)
 {
-  ZStreamBio *self = (ZStreamBio *)bio;
+  ZStreamBio *self = static_cast<ZStreamBio *>(BIO_get_data(bio));
 
   z_enter();
   if (self == NULL)
     z_return(0);
-  if (self->super.shutdown)
+  if (BIO_get_shutdown(self->super))
     {
       z_stream_shutdown(self->stream, 2, NULL);
-      bio->init = 0;
-      bio->flags = 0;
+      BIO_set_init(bio, 0);
+      BIO_set_flags(bio, 0);
+
+      g_free(self);
     }
   z_return(1);
 }
 
-BIO_METHOD z_ssl_bio_method = 
-{
-  (21|0x0400|0x0100),
-  "Zorp Stream BIO",
-  z_stream_bio_write,
-  z_stream_bio_read,
-  z_stream_bio_puts,
-  NULL,
-  z_stream_bio_ctrl,
-  z_stream_bio_create,
-  z_stream_bio_destroy,
-  NULL
-};
+std::shared_ptr<BIO_METHOD> z_ssl_bio_method;
 
-BIO *
+ZStreamBio *
 z_ssl_bio_new(ZStream *stream)
 {
+  z_enter();
+
+  if (!z_ssl_bio_method)
+    {
+      std::shared_ptr<BIO_METHOD> bio_method = std::shared_ptr<BIO_METHOD>(
+        BIO_meth_new(BIO_TYPE_DGRAM, "Zorp Stream BIO"),
+        BIO_meth_free
+      );
+      if (!bio_method
+          || !BIO_meth_set_write(bio_method.get(), z_stream_bio_write)
+          || !BIO_meth_set_read(bio_method.get(), z_stream_bio_read)
+          || !BIO_meth_set_puts(bio_method.get(), z_stream_bio_puts)
+          || !BIO_meth_set_ctrl(bio_method.get(), z_stream_bio_ctrl)
+          || !BIO_meth_set_create(bio_method.get(), z_stream_bio_create)
+          || !BIO_meth_set_destroy(bio_method.get(), z_stream_bio_destroy))
+        return nullptr;
+      z_ssl_bio_method = bio_method;
+    }
+
   ZStreamBio *self = g_new0(ZStreamBio, 1);
 
-  z_enter();
-  self->super.method = &z_ssl_bio_method;
   self->stream = stream;
-  self->super.init = 1;
-  z_return((BIO *)self);
+
+  /**
+   *
+   * SSL_set_bio() will transfers the ownership to ssl and when the rbio and wbio parameters are the same and the rbio
+   * is not the same as the previously set value then one reference is consumed.
+   *
+   **/
+  self->super = BIO_new(z_ssl_bio_method.get());
+
+  BIO_set_data(self->super, self);
+
+  z_return(self);
 }

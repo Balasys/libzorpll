@@ -1,6 +1,6 @@
-Name:			libzorpll-6_0-11
-Version:		6.0.11.0
-Release:		1%{?dist}
+Name:			libzorpll-7_0-1
+Version:		7.0.1.0~alpha1
+Release:		0.1%{?dist}
 URL:			https://balasys.github.io/zorp/
 %if 0%{?fedora}
 %else
@@ -8,7 +8,7 @@ Vendor:			BalaSys IT
 Packager:		BalaSys Development Team <devel@balasys.hu>
 %endif
 
-Source:			libzorpll_%{version}.tar.gz
+Source:			libzorpll_%{version}.tar.xz
 Summary:		Low level library functions for Zorp
 License:		GPL-2.0
 Group:			System/Libraries
@@ -46,14 +46,16 @@ associated programs.
 
 %build
 autoreconf -if
-%configure --disable-werror
+%configure
 make %{?_smp_mflags}
 
 %install
 %make_install
 
 %check
+%if 0%{?fedora} || 0%{?rhel} || 0%{?centos}
 make check %{?_smp_mflags}
+%endif
 
 %post
 ldconfig
@@ -95,15 +97,19 @@ based on libzorpll.
 
 %files devel
 %defattr(-,root,root)
-%{_libdir}/pkgconfig/zorpll-6.0.pc
-%{_libdir}/libzorpll-6.0.a
-%{_libdir}/libzorpll-6.0*.la
-%{_libdir}/libzorpll-6.0*.so
-%dir %{_includedir}/zorp-6.0
-%dir %{_includedir}/zorp-6.0/zorpll
-%{_includedir}/zorp-6.0/zorpll/*.h
+%{_libdir}/pkgconfig/zorpll-7.0.pc
+%{_libdir}/libzorpll-7.0.a
+%{_libdir}/libzorpll-7.0*.la
+%{_libdir}/libzorpll-7.0*.so
+%dir %{_includedir}/zorp-7.0
+%dir %{_includedir}/zorp-7.0/zorpll
+%{_includedir}/zorp-7.0/zorpll/*.h
 
 %changelog
+* Thu May 17 2018 Balasys Development Team <devel@balasys.hu> - 7.0.1.0-0.1
+  - New upstream release 7.0.1.0~alpha1
+* Thu May 10 2018 Balasys Development Team <devel@balasys.hu> - 6.0.12.0-1
+- Version bump
 * Wed Sep 13 2017 Balasys Development Team <devel@balasys.hu> - 6.0.11.0-1
 - Version bump
 * Fri Nov 25 2016 Balasys Development Team <devel@balasys.hu> - 6.0.10.0-1

@@ -81,7 +81,7 @@ z_stream_blob_watch_dispatch(ZStream *s, GSource *src G_GNUC_UNUSED)
         {
           /*LOG
             This message indicates an internal error, read event occurred, but no read
-            callback is set. Please report this event to the Balabit QA Team (devel@balabit.com).
+            callback is set. Please report this event to the BalaSys Development Team (devel@balasys.hu).
            */
           z_log(self->super.name, CORE_ERROR, 3, "Internal error, no read callback is set;");
         }
@@ -97,7 +97,7 @@ z_stream_blob_watch_dispatch(ZStream *s, GSource *src G_GNUC_UNUSED)
         {
           /*LOG
             This message indicates an internal error, write event occurred, but no write
-            callback is set. Please report this event to the Balabit QA Team (devel@balabit.com).
+            callback is set. Please report this event to the BalaSys Development Team (devel@balasys.hu).
            */
           z_log(self->super.name, CORE_ERROR, 3, "Internal error, no write callback is set;");
         }
@@ -229,7 +229,7 @@ z_stream_blob_ctrl_method(ZStream *s, guint function, gpointer value, guint vlen
       /*LOG
         This message indicates that an internal error occurred, during setting NONBLOCK mode
         on a stream, because the size of the parameter is wrong. Please report this event to
-        the Balabit QA Team (devel@balabit.com).
+        the BalaSys Development Team (devel@balasys.hu).
        */
       z_log(NULL, CORE_ERROR, 4, "Internal error, bad parameter is given for setting NONBLOCK mode; size='%d'", vlen);
       break;
@@ -243,7 +243,7 @@ z_stream_blob_ctrl_method(ZStream *s, guint function, gpointer value, guint vlen
       /*LOG
         This message indicates that an internal error occurred, during getting NONBLOCK mode status
         on a stream, because the size of the parameter is wrong. Please report this event to
-        the Balabit QA Team (devel@balabit.com).
+        the BalaSys Development Team (devel@balasys.hu).
        */
       z_log(NULL, CORE_ERROR, 4, "Internal error, bad parameter is given for getting the NONBLOCK mode; size='%d'", vlen);
       break;
@@ -253,7 +253,7 @@ z_stream_blob_ctrl_method(ZStream *s, guint function, gpointer value, guint vlen
         z_return(TRUE);
       /*LOG
         This message indicates that an internal error occurred, because an invalid control was called.
-        Please report this event to the Balabit QA Team (devel@balabit.com).
+        Please report this event to the BalaSys Development Team (devel@balasys.hu).
        */
       z_log(NULL, CORE_ERROR, 4, "Internal error, unknown stream ctrl; ctrl='%d'", ZST_CTRL_MSG(function));
       break;

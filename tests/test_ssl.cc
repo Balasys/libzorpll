@@ -28,14 +28,14 @@ test_server(gint fd)
   gchar text_sent_by_client[512];
 
   ssl_session = z_ssl_session_new("server/ssl", Z_SSL_MODE_SERVER, testkey, testcert, NULL, NULL, 9, Z_SSL_VERIFY_NONE);
-  BOOST_CHECK(ssl_session);
+  BOOST_REQUIRE(ssl_session);
 
   stream = z_stream_fd_new(fd, "server");
-  BOOST_CHECK(stream);
+  BOOST_REQUIRE(stream);
   stream = z_stream_push(stream, z_stream_ssl_new(NULL, ssl_session));
-  BOOST_CHECK(stream);
+  BOOST_REQUIRE(stream);
 
-  BOOST_CHECK_EQUAL(SSL_accept(ssl_session->ssl), 1);
+  BOOST_REQUIRE_EQUAL(SSL_accept(ssl_session->ssl), 1);
 
   BOOST_CHECK_EQUAL(z_stream_write(stream, msg_from_server_to_client.c_str(), msg_from_server_to_client.length(), &bytes_written, NULL), G_IO_STATUS_NORMAL);
   BOOST_CHECK_EQUAL(msg_from_server_to_client.length(), bytes_written);
@@ -53,12 +53,12 @@ test_client(gint fd)
   gsize bytes_written, bytes_read;
 
   ssl_session = z_ssl_session_new("client/ssl", Z_SSL_MODE_CLIENT, NULL, NULL, NULL, NULL, 9, Z_SSL_VERIFY_NONE);
-  BOOST_CHECK(ssl_session);
+  BOOST_REQUIRE(ssl_session);
 
   stream = z_stream_fd_new(fd, "client");
   stream = z_stream_push(stream, z_stream_ssl_new(NULL, ssl_session));
-  BOOST_CHECK(stream);
-  BOOST_CHECK_EQUAL(SSL_connect(ssl_session->ssl), 1);
+  BOOST_REQUIRE(stream);
+  BOOST_REQUIRE_EQUAL(SSL_connect(ssl_session->ssl), 1);
 
   BOOST_CHECK_EQUAL(z_stream_write(stream, msg_from_client_to_server.c_str(), msg_from_client_to_server.length(), &bytes_written, NULL), G_IO_STATUS_NORMAL);
   BOOST_CHECK_EQUAL(msg_from_client_to_server.length(), bytes_written);

@@ -73,7 +73,8 @@ z_connector_connected(gboolean timed_out, gpointer data)
       /*LOG
         This message indicates that getsockopt(SOL_SOCKET, SO_ERROR)
         failed for the given fd. This system call should never fail,
-        so if you see this please report it to the Zorp QA.
+        so if you see this please report it to the BalaSys Development Team
+	(at devel@balasys.hu).
        */
       z_log(self->session_id, CORE_ERROR, 0, "getsockopt(SOL_SOCKET, SO_ERROR) failed for connecting socket, ignoring; fd='%d', error='%s'", self->fd, g_strerror(errno));
     }
@@ -227,7 +228,7 @@ z_connector_start(ZConnector *self, ZSockAddr **local_addr)
     {
       /*LOG
         This message indicates that the connection was started twice.
-        Please report this error to the Balabit QA Team (devel@balabit.com).
+        Please report this error to the BalaSys Development Team (devel@balasys.hu).
        */
       z_log(self->session_id, CORE_ERROR, 3, "Internal error, z_connector_start was called twice;");
       z_return(FALSE);
