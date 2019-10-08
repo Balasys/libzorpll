@@ -39,6 +39,9 @@
     <ClCompile Include="..\..\..\src\headerset.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\inetaddress.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\io.cc">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -19,6 +19,7 @@
     <ClCompile Include="..\..\..\src\crypt.cc" />
     <ClCompile Include="..\..\..\src\error.cc" />
     <ClCompile Include="..\..\..\src\headerset.cc" />
+    <ClCompile Include="..\..\..\src\inetaddress.cc" />
     <ClCompile Include="..\..\..\src\io.cc" />
     <ClCompile Include="..\..\..\src\listen.cc" />
     <ClCompile Include="..\..\..\src\log.cc" />

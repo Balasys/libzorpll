@@ -1,7 +1,22 @@
 AM_CXXFLAGS=$(REGULAR_CXXFLAGS) $(DEPS_CXXFLAGS) -DBOOST_TEST_DYN_LINK=1
 AM_LDFLAGS=$(REGULAR_LDFLAGS) -lboost_unit_test_framework ../src/libzorpll-@LIBZORPLL_LT_RELEASE@.la -lm
 
-check_PROGRAMS = test_zcrypt test_readline test_registry test_conns test_ssl test_streams test_random test_valid_chars test_sockaddr test_blob test_base64 test_codegzip test_portrandom test_pktbuf
+check_PROGRAMS = \
+	test_zcrypt \
+	test_readline \
+	test_registry \
+	test_conns \
+	test_ssl \
+	test_streams \
+	test_random \
+	test_valid_chars \
+	test_sockaddr \
+	test_blob \
+	test_base64 \
+	test_codegzip \
+	test_portrandom \
+	test_pktbuf \
+	test_inetaddress
 
 test_zcrypt_SOURCES = test_zcrypt.cc
 
@@ -32,6 +47,23 @@ test_portrandom_SOURCES = test_portrandom.cc randtest.cc randtest.h
 
 test_pktbuf_SOURCES = test_pktbuf.cc
 
-TESTS = test_registry test_readline test_zcrypt test_conns test_ssl test_random test_streams test_valid_chars test_sockaddr test_blob test_base64 test_codegzip test_portrandom test_pktbuf
+test_inetaddress_SOURCES = test_inetaddress.cc
+
+TESTS = \
+	test_registry \
+	test_readline \
+	test_zcrypt \
+	test_conns \
+	test_ssl \
+	test_random \
+	test_streams \
+	test_valid_chars \
+	test_sockaddr \
+	test_blob \
+	test_base64 \
+	test_codegzip \
+	test_portrandom \
+	test_pktbuf \
+	test_inetaddress
 
 EXTRA_DIST = testx509.crt testx509.key

@@ -36,6 +36,11 @@
 #include <pwd.h>
 #include <grp.h>
 
+#include <chrono>
+#include <exception>
+#include <string>
+#include <thread>
+
 #include <zorpll/misc.h>
 
 #if HAVE_SYS_PRCTL_H
@@ -1260,11 +1265,11 @@ z_process_perform_supervise(void)
 static gpointer
 z_systemd_notify(gpointer user_data)
 {
-  const gint watchdog_delay = GPOINTER_TO_INT(user_data);
+  const std::chrono::microseconds watchdog_delay{GPOINTER_TO_INT(user_data)};
 
   while (true)
     {
-      sleep(watchdog_delay);
+      std::this_thread::sleep_for(watchdog_delay);
       sd_notify(0, "WATCHDOG=1");
     }
 
@@ -1362,25 +1367,7 @@ z_process_start(void)
 #if HAVE_SYSTEMD == 1
   else if (process_opts.mode == Z_PM_SYSTEMD_NOTIFY)
     {
-      const char *watchdog_usec_env_str = getenv("WATCHDOG_USEC");
-      if (!watchdog_usec_env_str)
-        {
-          z_log(nullptr, CORE_ERROR, 0,
-                "The systemd-notify process-mode requires the WATCHDOG_USEC environment variable to be set");
-          exit(1);
-        }
-
-      const int watchdog_usec = atoi(watchdog_usec_env_str);
-      const int watchdog_delay = watchdog_usec / (1000000 * 2); // in sec and half of the value
-      if (watchdog_delay < 1)
-        {
-          z_log(nullptr, CORE_ERROR, 0, "WATCHDOG_USEC has invalid value");
-          exit(1);
-        }
-
       process_kind = Z_PK_DAEMON;
-      z_thread_new("systemd-notify", z_systemd_notify, GINT_TO_POINTER(watchdog_delay));
-      sd_notify(0, "READY=1");
     }
 #endif
   else
@@ -1434,6 +1421,37 @@ z_process_startup_failed(guint ret_num, gboolean may_exit)
 void
 z_process_startup_ok(void)
 {
+#if HAVE_SYSTEMD == 1
+  if (process_opts.mode == Z_PM_SYSTEMD_NOTIFY)
+    {
+      const char *watchdog_usec_env_str = getenv("WATCHDOG_USEC");
+      if (!watchdog_usec_env_str)
+        {
+          z_log(nullptr, CORE_ERROR, 0,
+                "The systemd-notify process-mode requires the WATCHDOG_USEC environment variable to be set");
+          exit(1);
+        }
+
+      int watchdog_delay_usec = 0;
+      try
+        {
+          std::size_t pos = 0;
+          watchdog_delay_usec = std::stoi(watchdog_usec_env_str, &pos) / 2; // sleep period need to be half of this value
+          if (pos != std::string{watchdog_usec_env_str}.length())
+            throw std::invalid_argument{"Value is not a number"};
+        }
+      catch (const std::exception &e)
+        {
+          z_log(nullptr, CORE_ERROR, 0, "WATCHDOG_USEC has invalid value; error='%s'", e.what());
+          exit(1);
+        }
+
+      z_thread_new("systemd-notify", z_systemd_notify, GINT_TO_POINTER(watchdog_delay_usec));
+
+      sd_notify(0, "READY=1");
+    }
+#endif
+
   if (process_opts.mode != Z_PM_SYSTEMD_NOTIFY)
     {
       z_process_write_pidfile(getpid());

@@ -91,7 +91,7 @@ z_ssl_init()
   if (crypto_engine)
     {
       ENGINE *e;
-      
+
       e = ENGINE_by_id(crypto_engine);
       if (!e)
         {
@@ -123,15 +123,15 @@ z_ssl_init()
         }
       else
         {
-	  /*LOG
-	    This message indicates that the given SSL crypto engine is not found. Check your
-	    SSL crypto card installation, and the crypto engines name.
-	   */
+          /*LOG
+            This message indicates that the given SSL crypto engine is not found. Check your
+            SSL crypto card installation, and the crypto engines name.
+           */
           z_log(NULL, CORE_ERROR, 1, "No such SSL crypto engine; crypto_engine='%s'", crypto_engine);
         }
     }
 #endif
-  
+
   z_return();
 }
 
@@ -180,7 +180,7 @@ z_ssl_verify_crl(int ok,
 
   subject = X509_get_subject_name(xs);
   X509_NAME_oneline(subject, subject_name, sizeof(subject_name));
-  
+
   issuer = X509_get_issuer_name(xs);
   X509_NAME_oneline(issuer, issuer_name, sizeof(issuer_name));
  
@@ -204,7 +204,7 @@ z_ssl_verify_crl(int ok,
       ASN1_UTCTIME_print(bio, X509_CRL_get0_nextUpdate(crl));
       BIO_printf(bio, "'");
       n = BIO_pending(bio);
-      
+
       cp = static_cast<char *>(alloca(n+1));
       n = BIO_read(bio, cp, n);
       cp[n] = 0;
@@ -238,7 +238,7 @@ z_ssl_verify_crl(int ok,
             because it has an invalid nextUpdate field.
            */
           z_log(session_id, CORE_ERROR, 1, "CRL has invalid nextUpdate field; issuer='%s'", subject_name);
-          
+
           X509_STORE_CTX_set_error(ctx, X509_V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD);
           X509_OBJECT_free(obj);
           z_return(FALSE);
@@ -263,7 +263,7 @@ z_ssl_verify_crl(int ok,
     {
       X509_REVOKED *revoked;
       int i, n;
-      
+
       n = sk_X509_REVOKED_num(X509_CRL_get_REVOKED(crl));
       for (i = 0; i < n; i++)
         {
@@ -285,7 +285,7 @@ z_ssl_verify_crl(int ok,
     }
   z_return(ok);
 }
-                                                  
+
 static int
 z_ssl_verify_callback(int ok, X509_STORE_CTX *ctx)
 {
@@ -433,7 +433,7 @@ z_ssl_set_trusted_ca_list(SSL_CTX *ctx, gchar *ca_path)
   const gchar *direntname;
   struct stat ca_stat;
   GDir *dir;
-   
+
   z_enter();
   G_LOCK(lock);
   if (ca_dir_hash == NULL)
@@ -444,7 +444,7 @@ z_ssl_set_trusted_ca_list(SSL_CTX *ctx, gchar *ca_path)
     {
       gpointer orig_key;
       gpointer value;
-    
+
       if (g_hash_table_lookup_extended(ca_dir_hash, ca_path, &orig_key, &value))
         {
           ca_dir = (ZSSLCADirectory *) value;
@@ -461,7 +461,7 @@ z_ssl_set_trusted_ca_list(SSL_CTX *ctx, gchar *ca_path)
           g_free(ca_dir);
         }
     }
-        
+
   if (stat(ca_path, &ca_stat) < 0)
     {
       G_UNLOCK(lock);
@@ -470,7 +470,7 @@ z_ssl_set_trusted_ca_list(SSL_CTX *ctx, gchar *ca_path)
   ca_dir = g_new0(ZSSLCADirectory, 1);
   ca_dir->modtime = ca_stat.st_mtime;
   ca_dir->contents = sk_X509_NAME_new(z_ssl_X509_name_cmp);
-  
+
   dir = g_dir_open(ca_path,0,NULL);
   if (dir)
     {
@@ -485,20 +485,20 @@ z_ssl_set_trusted_ca_list(SSL_CTX *ctx, gchar *ca_path)
             {
               /*LOG
                 This message indicates that an error occurred during loading client CA certificates
-		from the given file. It is likely that the file is not readable or it is in a wrong format.
+                from the given file. It is likely that the file is not readable or it is in a wrong format.
                */
               z_log(NULL, CORE_ERROR, 4, "Error loading CA certificate bundle, skipping; filename='%s'", file_name);
               continue;
             }
-                                                          
+
           for (i = 0; ca_file != NULL && i < sk_X509_NAME_num(ca_file); i++)
             {
               if (sk_X509_NAME_find(ca_dir->contents, sk_X509_NAME_value(ca_file, i)) < 0)
                 sk_X509_NAME_push(ca_dir->contents, sk_X509_NAME_value(ca_file, i));
               else
-	        X509_NAME_free(sk_X509_NAME_value(ca_file, i));
+                X509_NAME_free(sk_X509_NAME_value(ca_file, i));
             }
-	  sk_X509_NAME_free(ca_file);
+          sk_X509_NAME_free(ca_file);
         }
     }
   g_hash_table_insert(ca_dir_hash, g_strdup(ca_path), ca_dir);
@@ -553,6 +553,11 @@ z_ssl_create_ctx(const char *session_id, int mode, SSLContextType ctx_type)
     case WEAK:
     break;
     }
+
+  if (!SSL_CTX_set_max_proto_version(ctx, TLS1_2_VERSION))
+    z_log(session_id, CORE_ERROR, 4, "Error setting SSL_CTX max protocol version; error='%s'",
+                                     z_ssl_get_error_str(buf, sizeof(buf)));
+
   z_return(ctx);
 }
 
@@ -770,7 +775,7 @@ z_ssl_session_new_from_context(const char *session_id, SSL_CTX *ctx, int verify_
         X509_STORE_free(crl_store);
       z_return(NULL);
     }
-  
+
   self = g_new0(ZSSLSession, 1);
   self->ref_cnt = 1;
   self->ssl = session;  
@@ -783,13 +788,13 @@ z_ssl_session_new_from_context(const char *session_id, SSL_CTX *ctx, int verify_
   if (verify_type == Z_SSL_VERIFY_OPTIONAL || 
       verify_type == Z_SSL_VERIFY_REQUIRED_UNTRUSTED)
     verify_mode = SSL_VERIFY_PEER;
-  
+
   if (verify_type == Z_SSL_VERIFY_REQUIRED_TRUSTED)
     verify_mode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
-  
+
   if (verify_mode != 0)
     SSL_set_verify(session, verify_mode, z_ssl_verify_callback);
-  
+
   z_return(self);
 }
 
@@ -806,7 +811,7 @@ z_ssl_session_new_inline(const char *session_id,
   ZSSLSession *self;
   SSL_CTX *ctx;
   X509_STORE *crl_store = NULL;
-  
+
   z_enter();
   ctx = z_ssl_create_ctx(session_id, mode, WEAK);
   if (!ctx)
@@ -836,7 +841,7 @@ z_ssl_session_new(const char *session_id,
   ZSSLSession *self;
   SSL_CTX *ctx;
   X509_STORE *crl_store = NULL;
-  
+
   z_enter();
   ctx = z_ssl_create_ctx(session_id, mode, HARDENED);
   if (!ctx)
@@ -875,7 +880,7 @@ z_ssl_session_new(const char *session_id,
 
   if (store)
     SSL_CTX_set_cert_store(ctx, store);
-  
+
   session = SSL_new(ctx);
   SSL_CTX_free(ctx);
   if (!session)
@@ -923,7 +928,6 @@ z_ssl_session_new_ssl(SSL *ssl)
   self->ssl = ssl;
   return self;
 }
-        
 
 static void
 z_ssl_session_free(ZSSLSession *self)
@@ -972,7 +976,7 @@ z_stream_bio_write(BIO *bio, const char *buf, int buflen)
       if (ret == G_IO_STATUS_AGAIN)
         {
           BIO_set_retry_write(bio);
-	  z_return(-1);
+          z_return(-1);
         }
       if (ret != G_IO_STATUS_NORMAL)
         z_return(-1);
@@ -997,7 +1001,7 @@ z_stream_bio_read(BIO *bio, char *buf, int buflen)
       if (ret == G_IO_STATUS_AGAIN)
         {
           BIO_set_retry_read(bio);
-	  z_return(-1);
+          z_return(-1);
         }
       if (ret == G_IO_STATUS_EOF)
         z_return(0);
@@ -1029,16 +1033,16 @@ z_stream_bio_ctrl(BIO *bio, int cmd, long num, void */* ptr */)
     case BIO_CTRL_GET_CLOSE:
       ret = BIO_get_shutdown(bio);
       break;
-      
+
     case BIO_CTRL_SET_CLOSE:
       BIO_set_shutdown(bio, static_cast<int>(num));
       break;
-      
+
     case BIO_CTRL_DUP:
     case BIO_CTRL_FLUSH:
       ret = 1;
       break;
-      
+
     case BIO_CTRL_RESET:
     case BIO_C_FILE_SEEK:
     case BIO_C_FILE_TELL:
