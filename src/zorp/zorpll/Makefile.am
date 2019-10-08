@@ -1,6 +1,6 @@
 ZORP_H = \
 	cap.h streamssl.h log.h memtrace.h misc.h streamline.h sockaddr.h \
-	io.h ssl.h stream.h thread.h \
+	inetaddress.h io.h ssl.h stream.h thread.h \
 	listen.h connect.h source.h zorplib.h poll.h zorplibconfig.h \
 	registry.h packetbuf.h socket.h streambuf.h socketsource.h \
 	random.h error.h streamfd.h stackdump.h zobject.h process.h \

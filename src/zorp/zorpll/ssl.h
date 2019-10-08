@@ -96,6 +96,8 @@ typedef struct _ZStreamBio
 
 ZStreamBio *z_ssl_bio_new(ZStream *stream);
 
+gboolean z_ssl_set_trusted_ca_list(SSL_CTX *ctx, gchar *ca_path);
+
 #ifdef __cplusplus
 }
 

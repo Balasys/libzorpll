@@ -9,6 +9,7 @@ libzorpll_7_0_la_SOURCES = \
 	connect.cc \
 	crypt.cc \
 	error.cc \
+	inetaddress.cc \
 	io.cc \
 	listen.cc \
 	log.cc \

@@ -5,7 +5,7 @@ jobs:
       - image: balasys/zorpgpl-circleci:7.0
     environment:
       - PACKAGE: libzorpll
-      - OBS_PROJECT_DIR: security:Zorp:7:0:3/libzorpll
+      - OBS_PROJECT_DIR: security:Zorp:7:0:4/libzorpll
     working_directory: ~/libzorpll
     steps:
       - checkout
