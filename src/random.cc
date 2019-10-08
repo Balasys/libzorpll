@@ -11,6 +11,7 @@
 #include <zorpll/log.h>
 #include <numeric>
 #include <algorithm>
+#include <limits>
 
 #include <openssl/rand.h>
 
@@ -130,9 +131,35 @@ z_random_sequence_get_bounded(ZRandomStrength strength,
   z_return(TRUE);
 }
 
-class NotEnoughEntropyException : public std::exception
+class NotEnoughEntropyException : public std::exception {};
+
+static unsigned int
+z_get_secure_number(const unsigned int max)
 {
-};
+#ifdef G_OS_WIN32
+#undef max
+#endif
+
+  const unsigned int rand_max = std::numeric_limits<unsigned int>::max();
+  unsigned int random = 0;
+  do
+    {
+      if (RAND_bytes(reinterpret_cast<unsigned char *>(&random), sizeof(random)) != 1)
+        throw NotEnoughEntropyException();
+      // get a number from a range of multiple of max
+    } while (random >= (rand_max - (rand_max % max)));
+
+  return random %= max;
+}
+
+template<class RandomIt>
+static void
+z_secure_random_shuffle(RandomIt first, RandomIt last)
+{
+  const auto num = last - first;
+  for (auto i = num - 1; i > 0; --i)
+    std::swap(first[i], first[z_get_secure_number(i + 1)]);
+}
 
 /**
  * This function generates a random sequence where each value is in the
@@ -152,16 +179,7 @@ z_random_sequence_create(const unsigned int min, const unsigned int max)
   std::iota(sequence.begin(), sequence.end(), min);
   try
     {
-      std::random_shuffle(sequence.begin(), sequence.end(), [] (int max) {
-        unsigned char random;
-        do
-         {
-           if (RAND_bytes(&random, 1) != 1)
-             throw NotEnoughEntropyException();
-
-         } while (random >= max);
-        return random;
-        });
+      z_secure_random_shuffle(sequence.begin(), sequence.end());
     }
   catch (const NotEnoughEntropyException &e)
     {

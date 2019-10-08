@@ -1,6 +1,6 @@
-libzorpll (7.0.2.0) zorp70gpl; urgency=low
+libzorpll (7.0.3.0) zorp70gpl; urgency=low
 
   * New upstream version.
 
- -- BalaSys Development Team <devel@balasys.hu>  Wed, 06 Feb 2019 11:11:59 +0100
+ -- BalaSys Development Team <devel@balasys.hu>  Fri, 16 Aug 2019 16:56:00 +0200
 
