@@ -232,6 +232,8 @@ void z_libzorpll_add_option_groups(GOptionContext *ctx, guint disable_groups);
 
 struct tm *z_localtime_r(const time_t *timep, struct tm *result);
 
+int z_closefrom(const int lowfd);
+
 #ifdef __cplusplus
 }
 #endif

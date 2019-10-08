@@ -171,6 +171,18 @@ if test "x$blb_cv_ip_recvtos" = "xyes"; then
 	AC_DEFINE(HAVE_IP_RECVTOS, 1, [have IP_RECVTOS])
 fi
 
+AC_CHECK_DECL([closefrom],
+  AC_DEFINE([HAVE_CLOSEFROM], [1], [Use closefrom() for z_closefrom]),
+  [],
+  [  #include <unistd.h> ]
+)
+
+AC_CHECK_DECL([F_CLOSEM],
+  AC_DEFINE([HAVE_FCNTL_CLOSEM], [1], [Use F_CLOSEM fcntl for z_closefrom]),
+  [],
+  [ #include <fcntl.h> ]
+)
+
 dnl ***************************************************************************
 dnl Checks for library functions.
 

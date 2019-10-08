@@ -1,5 +1,5 @@
 Name:			libzorpll-7_0-1
-Version:		7.0.1.0~alpha1
+Version:		7.0.1.0~alpha2
 Release:		0.1%{?dist}
 URL:			https://balasys.github.io/zorp/
 %if 0%{?fedora}
@@ -9,6 +9,7 @@ Packager:		BalaSys Development Team <devel@balasys.hu>
 %endif
 
 Source:			libzorpll_%{version}.tar.xz
+Patch0:			libzorpll_fix-lto.patch
 Summary:		Low level library functions for Zorp
 License:		GPL-2.0
 Group:			System/Libraries
@@ -43,6 +44,7 @@ associated programs.
 
 %prep
 %setup -q -n libzorpll
+%patch0 -p1
 
 %build
 autoreconf -if
@@ -70,7 +72,7 @@ ldconfig
 
 %package devel
 Summary:		Headers for libzorpll
-Group:			Development/Libraries
+Group:			Development/Libraries/C and C++
 Requires:		zlib-devel
 Requires:		glibc-devel
 Requires:		libcap-devel
@@ -106,6 +108,8 @@ based on libzorpll.
 %{_includedir}/zorp-7.0/zorpll/*.h
 
 %changelog
+* Wed Nov 12 2018 Balasys Development Team <devel@balasys.hu> - 7.0.1.0-0.2
+  - New upstream release 7.0.1.0~alpha2
 * Thu May 17 2018 Balasys Development Team <devel@balasys.hu> - 7.0.1.0-0.1
   - New upstream release 7.0.1.0~alpha1
 * Thu May 10 2018 Balasys Development Team <devel@balasys.hu> - 6.0.12.0-1
