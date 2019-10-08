@@ -17,15 +17,17 @@
 #include <zorpll/error.h>
 
 #include <string.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <ctype.h>
+#include <sys/types.h>
+
+#ifndef G_OS_WIN32
 #include <dirent.h>
 #include <fcntl.h>
-#include <sys/types.h>
 #include <unistd.h>
-
 #include <cstdint>
+#endif
 
 #define PARSE_STATE_START  0
 #define PARSE_STATE_DASH   1
@@ -713,7 +715,7 @@ z_closefrom(const int lowfd)
 }
 
 // Generic POSIX fallback (http://pubs.opengroup.org/onlinepubs/009695399/functions/sysconf.html)
-#else
+#elif !defined(G_OS_WIN32)
 int
 z_closefrom(const int lowfd)
 {

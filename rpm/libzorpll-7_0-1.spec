@@ -1,6 +1,6 @@
 Name:			libzorpll-7_0-1
-Version:		7.0.1.0~alpha2
-Release:		0.1%{?dist}
+Version:		7.0.1.0
+Release:		1%{?dist}
 URL:			https://balasys.github.io/zorp/
 %if 0%{?fedora}
 %else
@@ -108,6 +108,8 @@ based on libzorpll.
 %{_includedir}/zorp-7.0/zorpll/*.h
 
 %changelog
+* Wed Dec 5 2018 Balasys Development Team <devel@balasys.hu> - 7.0.1.0-1
+  - New upstream release 7.0.1.0
 * Wed Nov 12 2018 Balasys Development Team <devel@balasys.hu> - 7.0.1.0-0.2
   - New upstream release 7.0.1.0~alpha2
 * Thu May 17 2018 Balasys Development Team <devel@balasys.hu> - 7.0.1.0-0.1

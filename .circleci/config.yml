@@ -2,10 +2,10 @@ version: 2
 jobs:
   prepare_build_test:
     docker:
-      - image: balasys/zorpgpl-circleci:7.0.1-alpha1
+      - image: balasys/zorpgpl-circleci:7.0
     environment:
       - PACKAGE: libzorpll
-      - OBS_PROJECT_DIR: security:Zorp:7:0:1:alpha2/libzorpll
+      - OBS_PROJECT_DIR: security:Zorp:7:0:1/libzorpll
     working_directory: ~/libzorpll
     steps:
       - checkout
