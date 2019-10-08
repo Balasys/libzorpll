@@ -550,7 +550,7 @@ z_stream_line_unget_packet_method(ZStream *s, ZPktBuf *packet, GError **error)
 /* I/O callbacks for stacked stream */
 
 static gboolean
-z_stream_line_read_callback(ZStream *stream G_GNUC_UNUSED, GIOCondition poll_cond G_GNUC_UNUSED, gpointer s)
+z_stream_line_read_callback(ZStream */* stream */, GIOCondition /* poll_cond */, gpointer s)
 {
   ZStreamLine *self = (ZStreamLine *) s;
 
@@ -560,7 +560,7 @@ z_stream_line_read_callback(ZStream *stream G_GNUC_UNUSED, GIOCondition poll_con
 }
 
 static gboolean
-z_stream_line_pri_callback(ZStream *stream G_GNUC_UNUSED, GIOCondition poll_cond G_GNUC_UNUSED, gpointer s)
+z_stream_line_pri_callback(ZStream */* stream */, GIOCondition /* poll_cond */, gpointer s)
 {
   ZStreamLine *self = (ZStreamLine *) s;
 
@@ -570,7 +570,7 @@ z_stream_line_pri_callback(ZStream *stream G_GNUC_UNUSED, GIOCondition poll_cond
 }
 
 static gboolean
-z_stream_line_write_callback(ZStream *stream G_GNUC_UNUSED, GIOCondition poll_cond G_GNUC_UNUSED, gpointer s)
+z_stream_line_write_callback(ZStream */* stream */, GIOCondition poll_cond, gpointer s)
 {
   ZStreamLine *self = (ZStreamLine *) s;
   gboolean rc;
@@ -892,7 +892,7 @@ z_stream_line_ctrl_method(ZStream *s, guint function, gpointer value, guint vlen
 }
 
 static gboolean 
-z_stream_line_watch_prepare(ZStream *s, GSource *src G_GNUC_UNUSED, gint *timeout)
+z_stream_line_watch_prepare(ZStream *s, GSource */* src */, gint *timeout)
 {
   ZStreamLine *self = Z_CAST(s, ZStreamLine);
   gboolean ret = FALSE;
@@ -947,7 +947,7 @@ z_stream_line_watch_prepare(ZStream *s, GSource *src G_GNUC_UNUSED, gint *timeou
 }
 
 static gboolean 
-z_stream_line_watch_check(ZStream *s, GSource *src G_GNUC_UNUSED)
+z_stream_line_watch_check(ZStream *s, GSource */* src */)
 {
   ZStreamLine *self = (ZStreamLine *) s;
   gboolean ret = FALSE, child_readable;
@@ -980,7 +980,7 @@ z_stream_line_watch_check(ZStream *s, GSource *src G_GNUC_UNUSED)
 }
 
 static gboolean 
-z_stream_line_watch_dispatch(ZStream *s, GSource *src G_GNUC_UNUSED)
+z_stream_line_watch_dispatch(ZStream *s, GSource */* src */)
 {
   ZStreamLine *self = (ZStreamLine *) s;
   gboolean rc = TRUE;

@@ -635,7 +635,7 @@ z_log_release_cache(void)
  * @param user_data (unused)
  **/
 static void
-z_log_thread_started(ZThread *thread G_GNUC_UNUSED, gpointer user_data G_GNUC_UNUSED)
+z_log_thread_started(ZThread */* thread */, gpointer /* user_data */)
 {
   z_log_grab_cache();
 }
@@ -647,7 +647,7 @@ z_log_thread_started(ZThread *thread G_GNUC_UNUSED, gpointer user_data G_GNUC_UN
  * @param user_data (unused)
  **/
 static void
-z_log_thread_stopped(ZThread *thread G_GNUC_UNUSED, gpointer user_data G_GNUC_UNUSED)
+z_log_thread_stopped(ZThread */* thread */, gpointer /* user_data */)
 {
   z_log_release_cache();
 }
@@ -969,10 +969,10 @@ z_log(const gchar *session_id, const gchar *klass, int level, const gchar *forma
  * @param     user_data not used
  **/
 static void
-z_log_func_nosyslog(const gchar *log_domain G_GNUC_UNUSED,
-	   GLogLevelFlags log_flags G_GNUC_UNUSED,
-	   const gchar *message,
-	   gpointer user_data G_GNUC_UNUSED)
+z_log_func_nosyslog(const gchar */* log_domain */,
+           GLogLevelFlags /* log_flags */,
+           const gchar *message,
+           gpointer /* user_data */)
 {
   gchar timestamp[32];
   time_t now;
@@ -998,10 +998,10 @@ z_log_func_nosyslog(const gchar *log_domain G_GNUC_UNUSED,
  * Zorp itself does not use GLIB logging, it calls z_log() directly.
  **/
 static void
-z_log_func(const gchar *log_domain G_GNUC_UNUSED,
-	   GLogLevelFlags log_flags,
-	   const gchar *message,
-	   gpointer user_data G_GNUC_UNUSED)
+z_log_func(const gchar */* log_domain */,
+           GLogLevelFlags log_flags,
+           const gchar *message,
+           gpointer /* user_data */)
 {
   int pri = LOG_INFO;
   if (log_flags & G_LOG_LEVEL_DEBUG)
@@ -1089,7 +1089,7 @@ z_log_win32_syslogmsg(const gchar *log_domain,
  * @returns TRUE to indicate further reading is needed, FALSE otherwise
  **/
 gboolean
-z_fetch_stderr(GIOChannel *channel, GIOCondition condition G_GNUC_UNUSED, gpointer arg G_GNUC_UNUSED)
+z_fetch_stderr(GIOChannel *channel, GIOCondition /* condition */, gpointer /* arg */)
 {
   gchar *line = NULL;
   GIOStatus status = G_IO_STATUS_NORMAL;

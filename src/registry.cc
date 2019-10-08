@@ -187,7 +187,7 @@ typedef struct _ZRegistryForeachCallbackData
 } ZRegistryForeachCallbackData;
 
 static void
-z_registry_foreach_invoke_callback(gpointer key G_GNUC_UNUSED, gpointer value, gpointer user_data)
+z_registry_foreach_invoke_callback(gpointer /* key */, gpointer value, gpointer user_data)
 {
   ZRegistryForeachCallbackData *callback_data = (ZRegistryForeachCallbackData *)user_data;
   ZRegistryEntry *ze = (ZRegistryEntry *) value;

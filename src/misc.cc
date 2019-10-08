@@ -55,7 +55,7 @@ z_charset_init(ZCharSet *self)
  *      nonexistent state and the parser returned to its starting state at the end)
  **/
 gboolean 
-z_charset_parse(ZCharSet *self, gchar *interval_str)
+z_charset_parse(ZCharSet *self, const gchar *interval_str)
 {
   guint i = 0;
   guchar j;
@@ -157,7 +157,7 @@ z_charset_parse(ZCharSet *self, gchar *interval_str)
  * @returns if the string contains valid characters only
  **/
 gboolean 
-z_charset_is_string_valid(ZCharSet *self, gchar *str, gint len)
+z_charset_is_string_valid(ZCharSet *self, const gchar *str, gint len)
 {
   gint i;
   

@@ -384,7 +384,7 @@ z_mem_trace_printf(const char *format, ...)
       mem_trace_log_fd = open(mem_trace_filename, O_CREAT | O_WRONLY | O_APPEND, 0600);
       if (mem_trace_log_fd != -1)
         {
-          G_GNUC_UNUSED ssize_t ret = write(mem_trace_log_fd, buf, len);
+          write(mem_trace_log_fd, buf, len);
           close(mem_trace_log_fd);
         }
     }
@@ -925,7 +925,7 @@ calloc(size_t nmemb, size_t size)
  * @param memtrace_file unused
  **/
 void 
-z_mem_trace_init(const gchar *memtrace_file G_GNUC_UNUSED)
+z_mem_trace_init(const gchar */* memtrace_file */)
 {
 }
 

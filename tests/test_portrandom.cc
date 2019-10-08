@@ -66,7 +66,7 @@ public:
     {
       int socket_fd;
       struct sockaddr_in socket_address;
-      char *ip_address = "127.0.0.1";
+      const char *ip_address = "127.0.0.1";
     #if REALLY_RANDOM
       guint32 sock_flags = ZSF_LOOSE_BIND | ZSF_RANDOM_BIND;
     #else

@@ -20,9 +20,18 @@
 #include <time.h>
 #endif
 
+#include <cmath>
+#include <limits>
+#include <type_traits>
+#include <algorithm>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#ifndef __GNUC__
+#define __attribute__(x)
+#endif // GNUC
 
 #define MAX_REF 512*1024
 
@@ -54,8 +63,8 @@ typedef struct _ZCharSet
 } ZCharSet;
 
 void z_charset_init(ZCharSet *self);
-gboolean z_charset_parse(ZCharSet *self, gchar *spec);
-gboolean z_charset_is_string_valid(ZCharSet *self, gchar *str, gint len);
+gboolean z_charset_parse(ZCharSet *self, const gchar *spec);
+gboolean z_charset_is_string_valid(ZCharSet *self, const gchar *str, gint len);
 
 /**
  * Puts chr into the ZCharSet.
@@ -240,4 +249,24 @@ int z_closefrom(const int lowfd);
 }
 #endif
 
+
+/**
+ * Helper for comparing real values
+ * See: http://en.cppreference.com/w/cpp/types/numeric_limits/epsilon
+ *
+ * @param[in] x one item to compare
+ * @param[in] y the other item to compare
+ * @param[in] ulp the allowable difference in the last place
+ * @returns whether x and y is 'almst the same'
+ **/
+template<class T>
+typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
+almost_equal(T x, T y, int ulp)
+{
+        // the machine epsilon has to be scaled to the magnitude of the values used
+        // and multiplied by the desired precision in ULPs (units in the last place)
+        return std::abs(x-y) < std::numeric_limits<T>::epsilon() * std::abs(x+y) * ulp
+            // unless the result is subnormal
+            || std::abs(x-y) < std::numeric_limits<T>::min();
+}
 #endif

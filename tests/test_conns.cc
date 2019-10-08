@@ -19,7 +19,7 @@ test_done(void)
 }
 
 static gboolean
-test_accepted(ZStream *stream G_GNUC_UNUSED, ZSockAddr *client, ZSockAddr *dest, gpointer user_data G_GNUC_UNUSED)
+test_accepted(ZStream * /* stream */, ZSockAddr *client, ZSockAddr *dest, gpointer /* user_data */)
 {
   printf("Connection accepted\n");
   z_sockaddr_unref(client);
@@ -29,7 +29,7 @@ test_accepted(ZStream *stream G_GNUC_UNUSED, ZSockAddr *client, ZSockAddr *dest,
 }
 
 static void
-test_connected(ZStream *fdstream G_GNUC_UNUSED, GError *error G_GNUC_UNUSED, gpointer user_data G_GNUC_UNUSED)
+test_connected(ZStream * /* fdstream */, GError * /* error */, gpointer /* user_data */)
 {
   printf("Connected\n");
   test_done();

@@ -30,9 +30,9 @@ z_header_set_destroy_chain(GList *list)
 }
 
 static void
-z_header_set_destroy_foreach(gpointer key G_GNUC_UNUSED,
+z_header_set_destroy_foreach(gpointer /* key */,
                                          gpointer value,
-                                         gpointer user_data G_GNUC_UNUSED)
+                                         gpointer /* user_data */)
 {
   z_enter();
   z_header_set_destroy_chain((GList *)value);
@@ -46,7 +46,7 @@ z_header_compare(ZHeader *h1, ZHeader *h2)
 }
 
 static void
-z_header_set_append_foreach(gpointer key G_GNUC_UNUSED,
+z_header_set_append_foreach(gpointer /* key */,
                                        gpointer value,
                                        gpointer user_data)
 {

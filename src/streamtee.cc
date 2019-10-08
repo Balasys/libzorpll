@@ -203,7 +203,7 @@ z_stream_tee_ctrl_method(ZStream *s, guint function, gpointer value, guint vlen)
  * It checks our internal state and prepares the watch conditions for s->child.
  **/
 static gboolean 
-z_stream_tee_watch_prepare(ZStream *s, GSource *src G_GNUC_UNUSED, gint *timeout)
+z_stream_tee_watch_prepare(ZStream *s, GSource */* src */, gint *timeout)
 {
   ZStreamTee *self = Z_CAST(s, ZStreamTee);
 
@@ -227,7 +227,7 @@ z_stream_tee_watch_prepare(ZStream *s, GSource *src G_GNUC_UNUSED, gint *timeout
  * @returns always FALSE
  **/
 static gboolean 
-z_stream_tee_watch_check(ZStream *s G_GNUC_UNUSED, GSource *src G_GNUC_UNUSED)
+z_stream_tee_watch_check(ZStream */* s */, GSource * /* src */)
 {
   return FALSE;
 }
@@ -244,7 +244,7 @@ z_stream_tee_watch_check(ZStream *s G_GNUC_UNUSED, GSource *src G_GNUC_UNUSED)
  * @returns always TRUE
  **/
 static gboolean 
-z_stream_tee_watch_dispatch(ZStream *s G_GNUC_UNUSED, GSource *src G_GNUC_UNUSED)
+z_stream_tee_watch_dispatch(ZStream * /* s */, GSource * /* src */)
 {
   return TRUE;
 }
@@ -260,7 +260,7 @@ z_stream_tee_watch_dispatch(ZStream *s G_GNUC_UNUSED, GSource *src G_GNUC_UNUSED
  * callbacks.
  **/
 static gboolean
-z_stream_tee_read_callback(ZStream *s G_GNUC_UNUSED, GIOCondition cond, gpointer user_data)
+z_stream_tee_read_callback(ZStream */* s */, GIOCondition cond, gpointer user_data)
 {
   ZStreamTee *self = Z_CAST(user_data, ZStreamTee);
 
@@ -278,7 +278,7 @@ z_stream_tee_read_callback(ZStream *s G_GNUC_UNUSED, GIOCondition cond, gpointer
  * callbacks.
  **/
 static gboolean
-z_stream_tee_write_callback(ZStream *s G_GNUC_UNUSED, GIOCondition cond, gpointer user_data)
+z_stream_tee_write_callback(ZStream */* s */, GIOCondition cond, gpointer user_data)
 {
   ZStreamTee *self = Z_CAST(user_data, ZStreamTee);
 
@@ -297,7 +297,7 @@ z_stream_tee_write_callback(ZStream *s G_GNUC_UNUSED, GIOCondition cond, gpointe
  * child to trigger read/write/pri callbacks.
  **/
 static gboolean
-z_stream_tee_pri_callback(ZStream *s G_GNUC_UNUSED, GIOCondition cond, gpointer user_data)
+z_stream_tee_pri_callback(ZStream */* s */, GIOCondition cond, gpointer user_data)
 {
   ZStreamTee *self = Z_CAST(user_data, ZStreamTee);
 

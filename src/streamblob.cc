@@ -30,7 +30,7 @@ typedef struct _ZStreamBlob
 extern ZClass ZStreamBlob__class;
 
 static gboolean
-z_stream_blob_watch_prepare(ZStream *s, GSource *src G_GNUC_UNUSED, gint *timeout)
+z_stream_blob_watch_prepare(ZStream *s, GSource */* src */, gint *timeout)
 {
   ZStreamBlob   *self = Z_CAST(s, ZStreamBlob);
   gboolean      res;
@@ -65,7 +65,7 @@ z_stream_blob_watch_check(ZStream *s, GSource *src)
 }
 
 static gboolean
-z_stream_blob_watch_dispatch(ZStream *s, GSource *src G_GNUC_UNUSED)
+z_stream_blob_watch_dispatch(ZStream *s, GSource */* src */)
 {
   ZStreamBlob *self = Z_CAST(s, ZStreamBlob);
   gboolean rc = TRUE;

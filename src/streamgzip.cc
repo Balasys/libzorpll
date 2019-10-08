@@ -314,7 +314,7 @@ z_stream_gzip_write_gzip_trailer(ZStreamGzip *self, GError **error)
 /* I/O callbacks for stacked stream */
 
 static gboolean
-z_stream_gzip_read_callback(ZStream *stream G_GNUC_UNUSED, GIOCondition poll_cond G_GNUC_UNUSED, gpointer s)
+z_stream_gzip_read_callback(ZStream */* stream */, GIOCondition /* poll_cond */, gpointer s)
 {
   ZStreamGzip *self = Z_CAST(s, ZStreamGzip);
 
@@ -324,7 +324,7 @@ z_stream_gzip_read_callback(ZStream *stream G_GNUC_UNUSED, GIOCondition poll_con
 }
 
 static gboolean
-z_stream_gzip_write_callback(ZStream *stream G_GNUC_UNUSED, GIOCondition poll_cond G_GNUC_UNUSED, gpointer s)
+z_stream_gzip_write_callback(ZStream */* stream */, GIOCondition /* poll_cond */, gpointer s)
 {
   ZStreamGzip *self = Z_CAST(s, ZStreamGzip);
   GIOStatus res;
@@ -674,7 +674,7 @@ z_stream_gzip_ctrl_method(ZStream *stream, guint function, gpointer value, guint
 }
 
 static gboolean 
-z_stream_gzip_watch_prepare(ZStream *s, GSource *src G_GNUC_UNUSED, gint *timeout)
+z_stream_gzip_watch_prepare(ZStream *s, GSource */* src */, gint *timeout)
 {
   ZStreamGzip *self = Z_CAST(s, ZStreamGzip);
   gboolean ret = FALSE;
@@ -720,7 +720,7 @@ z_stream_gzip_watch_prepare(ZStream *s, GSource *src G_GNUC_UNUSED, gint *timeou
 }
 
 static gboolean 
-z_stream_gzip_watch_check(ZStream *s, GSource *src G_GNUC_UNUSED)
+z_stream_gzip_watch_check(ZStream *s, GSource */* src */)
 {
   ZStreamGzip *self = Z_CAST(s, ZStreamGzip);
   gboolean ret = FALSE;
@@ -745,7 +745,7 @@ z_stream_gzip_watch_check(ZStream *s, GSource *src G_GNUC_UNUSED)
 
 static
 gboolean 
-z_stream_gzip_watch_dispatch(ZStream *s, GSource *src G_GNUC_UNUSED)
+z_stream_gzip_watch_dispatch(ZStream *s, GSource */* src */)
 {
   ZStreamGzip *self = Z_CAST(s, ZStreamGzip);
   gboolean rc = TRUE;

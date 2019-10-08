@@ -206,8 +206,8 @@ z_stream_source_check(GSource *s)
 
 static gboolean
 z_stream_source_dispatch(GSource     *s,
-                         GSourceFunc callback G_GNUC_UNUSED,
-                         gpointer    user_data G_GNUC_UNUSED)
+                         GSourceFunc /* callback */,
+                         gpointer    /* user_data */)
 {
   ZStreamSource *self = (ZStreamSource *) s;
   gboolean ret = FALSE;

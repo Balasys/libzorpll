@@ -24,7 +24,7 @@
 
 
 void
-send_log(void *p G_GNUC_UNUSED, const gchar *s G_GNUC_UNUSED, gint n G_GNUC_UNUSED, const char *fmt, ...)
+send_log(void * /* p */, const gchar * /* s */, gint /* n */, const char *fmt, ...)
 {
   va_list vl;
 
@@ -37,7 +37,7 @@ send_log(void *p G_GNUC_UNUSED, const gchar *s G_GNUC_UNUSED, gint n G_GNUC_UNUS
 #define b2str(a) a ? "TRUE" : "FALSE"
 
 void
-test_and_log(gboolean condition, gboolean expected, gchar *log_format, ...)
+test_and_log(gboolean condition, gboolean expected, const gchar *log_format, ...)
 {
   va_list vl;
   gchar orig_log[4096];

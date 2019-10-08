@@ -269,7 +269,7 @@ typedef struct _ZSockAddrInet
  * @returns GIOStatus to indicate success/failure
  **/
 static GIOStatus
-z_sockaddr_inet_bind_prepare(int sock, ZSockAddr *addr G_GNUC_UNUSED, guint32 sock_flags)
+z_sockaddr_inet_bind_prepare(int sock, ZSockAddr * /* addr */, guint32 sock_flags)
 {
   int tmp = 1;
   GIOStatus res = G_IO_STATUS_NORMAL;
@@ -586,7 +586,7 @@ z_sockaddr_inet_range_bind(int sock, ZSockAddr *a, guint32 sock_flags)
  * @returns the cloned address
  **/
 static ZSockAddr *
-z_sockaddr_inet_range_clone(ZSockAddr *addr, gboolean wildcard_clone G_GNUC_UNUSED)
+z_sockaddr_inet_range_clone(ZSockAddr *addr, gboolean /* wildcard_clone */)
 {
   ZSockAddrInetRange *self = g_new0(ZSockAddrInetRange, 1);
   
@@ -940,7 +940,7 @@ static gchar *z_sockaddr_unix_format(ZSockAddr *addr, gchar *text, gulong n);
  * @returns the cloned instance
  **/
 static ZSockAddr *
-z_sockaddr_unix_clone(ZSockAddr *addr, gboolean wildcard_clone G_GNUC_UNUSED)
+z_sockaddr_unix_clone(ZSockAddr *addr, gboolean /* wildcard_clone */)
 {
   ZSockAddrUnix *self = g_new0(ZSockAddrUnix, 1);
   
@@ -1073,7 +1073,7 @@ z_sockaddr_unix_new2(struct sockaddr_un *saun, int sunlen)
  * @returns GIOStatus to indicate success/failure
  **/
 static GIOStatus
-z_sockaddr_unix_bind_prepare(int sock G_GNUC_UNUSED, ZSockAddr *addr, guint32 sock_flags G_GNUC_UNUSED)
+z_sockaddr_unix_bind_prepare(int /* sock */, ZSockAddr *addr, guint32 /* sock_flags */)
 {
   ZSockAddrUnix *self = (ZSockAddrUnix *) addr;
   struct stat st;

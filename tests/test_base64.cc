@@ -30,7 +30,7 @@ public:
     }
 
     int
-    error(const char *msg)
+    error(const char * /* msg */)
     {
       //fprintf(stderr, "%s\n", msg);
       return 1;

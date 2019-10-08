@@ -400,7 +400,6 @@ z_stream_write_buf(ZStream *s, void *buf, guint buflen, gboolean copy_buf, GErro
 static gboolean
 z_stream_buf_ctrl_method(ZStream *s, guint function, gpointer value, guint vlen)
 {
-  ZStreamBuf *self G_GNUC_UNUSED = Z_CAST(s, ZStreamBuf);
   gboolean ret;
   
   z_enter();
@@ -435,7 +434,7 @@ z_stream_buf_ctrl_method(ZStream *s, guint function, gpointer value, guint vlen)
  * callbacks.
  **/
 static gboolean
-z_stream_buf_read_callback(ZStream *s G_GNUC_UNUSED, GIOCondition poll_cond, gpointer user_data)
+z_stream_buf_read_callback(ZStream */* s */, GIOCondition poll_cond, gpointer user_data)
 {
   ZStreamBuf *self = Z_CAST(user_data, ZStreamBuf);
   gboolean rc;
@@ -458,7 +457,7 @@ z_stream_buf_read_callback(ZStream *s G_GNUC_UNUSED, GIOCondition poll_cond, gpo
  * @returns always TRUE
  **/
 static gboolean
-z_stream_buf_write_callback(ZStream *s G_GNUC_UNUSED, GIOCondition poll_cond G_GNUC_UNUSED, gpointer user_data)
+z_stream_buf_write_callback(ZStream */* s */, GIOCondition /* poll_cond */, gpointer user_data)
 {
   ZStreamBuf *self = Z_CAST(user_data, ZStreamBuf);
   
@@ -479,7 +478,7 @@ z_stream_buf_write_callback(ZStream *s G_GNUC_UNUSED, GIOCondition poll_cond G_G
  * our child to trigger read/pri callbacks.
  **/
 static gboolean
-z_stream_buf_pri_callback(ZStream *s G_GNUC_UNUSED, GIOCondition poll_cond, gpointer user_data)
+z_stream_buf_pri_callback(ZStream */* s */, GIOCondition poll_cond, gpointer user_data)
 {
   ZStreamBuf *self = Z_CAST(user_data, ZStreamBuf);
   gboolean rc;
@@ -505,7 +504,7 @@ z_stream_buf_pri_callback(ZStream *s G_GNUC_UNUSED, GIOCondition poll_cond, gpoi
  * @returns TRUE if an event is immediately available
  **/
 static gboolean 
-z_stream_buf_watch_prepare(ZStream *s, GSource *src G_GNUC_UNUSED, gint *timeout)
+z_stream_buf_watch_prepare(ZStream *s, GSource */* src */, gint *timeout)
 {
   ZStreamBuf *self = Z_CAST(s, ZStreamBuf);
   gboolean ret = FALSE;
@@ -533,7 +532,7 @@ z_stream_buf_watch_prepare(ZStream *s, GSource *src G_GNUC_UNUSED, gint *timeout
  * @returns TRUE if an event needs to be triggered, see above
  **/
 static gboolean 
-z_stream_buf_watch_check(ZStream *s, GSource *src G_GNUC_UNUSED)
+z_stream_buf_watch_check(ZStream *s, GSource */* src */)
 {
   ZStreamBuf *self = Z_CAST(s, ZStreamBuf);
   gboolean ret = FALSE;
@@ -553,7 +552,7 @@ z_stream_buf_watch_check(ZStream *s, GSource *src G_GNUC_UNUSED)
  * ourselves, but rely on our child stream to trigger those for us.
  **/
 static gboolean 
-z_stream_buf_watch_dispatch(ZStream *s, GSource *src G_GNUC_UNUSED)
+z_stream_buf_watch_dispatch(ZStream *s, GSource */* src */)
 {
   gboolean ret = TRUE;
   

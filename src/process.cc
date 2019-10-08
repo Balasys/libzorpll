@@ -1471,7 +1471,7 @@ z_process_finish_prepare(void)
 }
 
 static gboolean
-z_process_process_mode_arg(const gchar *option_name G_GNUC_UNUSED, const gchar *value, gpointer data G_GNUC_UNUSED, GError **error)
+z_process_process_mode_arg(const gchar */* option_name */, const gchar *value, gpointer /* data */, GError **error)
 {
   if (strcmp(value, "foreground") == 0)
     {

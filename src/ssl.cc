@@ -560,7 +560,7 @@ z_ssl_create_ctx(const char *session_id, int mode, SSLContextType ctx_type)
 #ifndef G_OS_WIN32
 
 static int
-z_ssl_password(char *buf G_GNUC_UNUSED, int size G_GNUC_UNUSED, int rwflag G_GNUC_UNUSED, void *userdata G_GNUC_UNUSED)
+z_ssl_password(char */* buf */, int /* size */, int /* rwflag */, void * /* userdata */)
 {
   z_log(NULL, CORE_ERROR, 1, "Password protected key file detected;");
   return -1;
@@ -1019,7 +1019,7 @@ z_stream_bio_puts(BIO *bio, const char *str)
 }
 
 long
-z_stream_bio_ctrl(BIO *bio, int cmd, long num, void *ptr G_GNUC_UNUSED)
+z_stream_bio_ctrl(BIO *bio, int cmd, long num, void */* ptr */)
 {
   long ret = 1;
 
