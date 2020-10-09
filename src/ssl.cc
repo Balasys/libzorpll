@@ -508,6 +508,11 @@ z_ssl_set_trusted_ca_list(SSL_CTX *ctx, gchar *ca_path)
   z_return(TRUE);
 }
 
+bool z_ssl_X509_is_self_signed(X509* cert)
+{
+  return X509_get_extension_flags(cert) & EXFLAG_SS;
+}
+
 enum SSLContextType
 {
   WEAK,
@@ -517,19 +522,13 @@ enum SSLContextType
 static SSL_CTX *
 z_ssl_create_ctx(const char *session_id, int mode, SSLContextType ctx_type)
 {
-  SSL_CTX *ctx;
+  SSL_CTX *ctx = nullptr;
   char buf[128];
 
-  z_enter();
   if (mode == Z_SSL_MODE_CLIENT)
-    {
-      ctx = SSL_CTX_new(SSLv23_client_method());
-    }
+      ctx = SSL_CTX_new(TLS_client_method());
   else
-    {
-      ctx = SSL_CTX_new(SSLv23_server_method());
-      SSL_CTX_set_options(ctx, SSL_OP_CIPHER_SERVER_PREFERENCE);
-    }
+      ctx = SSL_CTX_new(TLS_server_method());
 
   if (!ctx)
     {
@@ -539,26 +538,56 @@ z_ssl_create_ctx(const char *session_id, int mode, SSLContextType ctx_type)
         to check your ulimit settings and/or the available physical/virtual
         RAM in your firewall host.
        */
-      z_log(session_id, CORE_ERROR, 3, "Error allocating new SSL_CTX; error='%s'", z_ssl_get_error_str(buf, sizeof(buf)));
-      z_return(NULL);
+      z_log(
+        session_id, CORE_ERROR, 3,
+        "Error allocating new SSL_CTX; error='%s'", z_ssl_get_error_str(buf, sizeof(buf))
+      );
+      return nullptr;
     }
+
+  if (mode == Z_SSL_MODE_SERVER)
+    SSL_CTX_set_options(ctx, SSL_OP_CIPHER_SERVER_PREFERENCE);
+
   SSL_CTX_set_options(ctx, SSL_OP_ALL);
+
+  int set_min = 0;
+  int set_max = 0;
   switch (ctx_type)
     {
-    case HARDENED:
-      SSL_CTX_set_options(ctx, SSL_OP_SINGLE_ECDH_USE | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1);
-      SSL_CTX_set_cipher_list(ctx, "EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5");
-    break;
+      case HARDENED:
+        set_min = SSL_CTX_set_min_proto_version(ctx, TLS1_2_VERSION);
+        set_max = SSL_CTX_set_max_proto_version(ctx, TLS1_3_VERSION);
+        if (!set_min || !set_max)
+          {
+            z_log(
+              session_id, CORE_ERROR, 3,
+              "Error setting SSL_CTX protocol version; error='%s'", z_ssl_get_error_str(buf, sizeof(buf))
+            );
+            SSL_CTX_free(ctx);
+            return nullptr;
+          }
 
-    case WEAK:
-    break;
+        SSL_CTX_set_cipher_list(ctx, "EECDH+AES256:EECDH+AES128:!SHA1");
+
+        SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_OFF);
+        SSL_CTX_set_options(ctx, SSL_OP_NO_TICKET);
+        if (!SSL_CTX_set_num_tickets(ctx, 0))
+          {
+            z_log(
+              session_id, CORE_ERROR, 3,
+              "Error setting SSL_CTX number of TLSv1.3 tickets to zero; error='%s'",
+              z_ssl_get_error_str(buf, sizeof(buf))
+            );
+            SSL_CTX_free(ctx);
+            return nullptr;
+          }
+        break;
+
+      case WEAK:
+        break;
     }
 
-  if (!SSL_CTX_set_max_proto_version(ctx, TLS1_2_VERSION))
-    z_log(session_id, CORE_ERROR, 4, "Error setting SSL_CTX max protocol version; error='%s'",
-                                     z_ssl_get_error_str(buf, sizeof(buf)));
-
-  z_return(ctx);
+  return ctx;
 }
 
 /* FIXME: SSL context cache */

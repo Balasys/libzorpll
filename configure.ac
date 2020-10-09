@@ -17,7 +17,7 @@ dnl Dependencies
 
 LIBGLIB_MIN_VERSION=2.32.0
 
-OPENSSL_MIN_VERSION=1.1.0
+OPENSSL_MIN_VERSION=1.1.1
 OPENSSL_MAX_VERSION=1.1.2
 
 dnl ***************************************************************************
@@ -406,7 +406,6 @@ winbuild/win32/vs10/Makefile
 winbuild/config.h-win32
 winbuild/libzorpll${LIBZORPLL_LT_RELEASE}-dev.files:winbuild/libzorpll-dev.files.in
 winbuild/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}.files:winbuild/libzorpll.files.in
-winbuild/libzorpll${LIBZORPLL_LT_COMPAT_BRANCH}-dbg.files:winbuild/libzorpll-dbg.files.in
 winbuild/win32/vs10/libzorpll.vcxproj
 tgz2build/Makefile
 src/libzorpll.rc

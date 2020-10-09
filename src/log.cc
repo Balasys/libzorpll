@@ -352,8 +352,8 @@ z_open_syslog(const gchar *tag)
 {
   char fn[256];
 
-  g_strlcpy(fn, getenv("windir"), sizeof(fn));
-  g_strlcat(fn, "\\debug\\", sizeof(fn));
+  g_strlcpy(fn, getenv("userprofile"), sizeof(fn));
+  g_strlcat(fn, "\\", sizeof(fn));
   g_strlcat(fn, tag, sizeof(fn));
 
   if((syslog_fd = open(fn, _O_APPEND | _O_RDWR | _O_CREAT, _S_IREAD | _S_IWRITE  )) == -1)

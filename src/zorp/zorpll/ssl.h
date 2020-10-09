@@ -103,4 +103,6 @@ gboolean z_ssl_set_trusted_ca_list(SSL_CTX *ctx, gchar *ca_path);
 
 #endif
 
+bool z_ssl_X509_is_self_signed(X509* cert);
+
 #endif
