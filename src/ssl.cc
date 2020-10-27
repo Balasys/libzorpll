@@ -1111,9 +1111,11 @@ z_stream_bio_destroy(BIO *bio)
       z_stream_shutdown(self->stream, 2, NULL);
       BIO_set_init(bio, 0);
       BIO_set_flags(bio, 0);
-
-      g_free(self);
     }
+
+  z_stream_unref(self->stream);
+  g_free(self);
+
   z_return(1);
 }
 
@@ -1143,7 +1145,7 @@ z_ssl_bio_new(ZStream *stream)
 
   ZStreamBio *self = g_new0(ZStreamBio, 1);
 
-  self->stream = stream;
+  self->stream = z_stream_ref(stream);
 
   /**
    *
