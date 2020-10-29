@@ -1,11 +1,11 @@
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
-@@ -52,7 +52,7 @@ libzorpll_7_0_la_LDFLAGS = \
+@@ -53,7 +53,7 @@ libzorpll_7_0_la_LDFLAGS = \
  
- libzorpll_7_0_la_CPPFLAGS = -DCOMPILING_LIBZORPLL
+ libzorpll_@LIBZORPLL_LT_RELEASE@_la_CPPFLAGS = -DCOMPILING_LIBZORPLL
  
--libzorpll_7_0_la_CXXFLAGS = $(REGULAR_CXXFLAGS)
-+libzorpll_7_0_la_CXXFLAGS = -ffat-lto-objects $(REGULAR_CXXFLAGS)
+-libzorpll_@LIBZORPLL_LT_RELEASE@_la_CXXFLAGS = $(REGULAR_CXXFLAGS)
++libzorpll_@LIBZORPLL_LT_RELEASE@_la_CXXFLAGS = -ffat-lto-objects $(REGULAR_CXXFLAGS)
  
  install-exec-local:
  	$(MKDIR_P) ${DESTDIR}/${ZORPLIB_TEMP_DIR}
