@@ -37,7 +37,7 @@ if test -n "$SNAPSHOT_VERSION"; then
 fi
 
 if test -z "$RELEASE_TAG"; then
-	RELEASE_TAG=zorp30dbg
+	RELEASE_TAG=release
 fi
 
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
@@ -275,11 +275,7 @@ if test "x$enable_tos" = "xauto"; then
 	fi
 fi
 
-if test "`uname -s`" = "Linux";then
-        CURRDATE=`date -R`
-else
-        CURRDATE=`date +"%a, %d %b %Y %H:%M:%S %Z"`
-fi
+CURRDATE=`date -R`
 
 dnl ***************************************************************************
 dnl Export detected settings to Makefiles and Zorp

@@ -5,10 +5,10 @@ Maintainer: BalaSys Development Team <devel@balasys.hu>
 Standards-Version: 3.8.4
 Build-Depends: libssl-dev (>= 1.1.1), libglib2.0-dev (>= 2.32.0), debhelper (>= 9), dh-autoreconf, libcap-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], zlib1g-dev, binutils (>= 2.14.90.0.7), libboost-test-dev, autoconf, autoconf-archive, automake, libtool, libsystemd-dev
 
-Package: libzorpll7.0-6
+Package: libzorpll7.0-7
 Section: libs
 Architecture: any
-Provides: virtual-libzorpll7.0-6
+Provides: virtual-libzorpll7.0-7
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Conflicts: libzorpll
 Description: Low level library functions for Zorp
@@ -23,7 +23,7 @@ Description: Low level library functions for Zorp
 Package: libzorpll7.0-dev
 Section: libdevel
 Architecture: any
-Depends: libzorpll7.0-6 (>= ${binary:Version}), ${misc:Depends}, libglib2.0-dev (>= 2.32.0), libcap-dev [linux-any], libssl-dev (>= 1.1.1)
+Depends: libzorpll7.0-7 (>= ${binary:Version}), ${misc:Depends}, libglib2.0-dev (>= 2.32.0), libcap-dev [linux-any], libssl-dev (>= 1.1.1)
 Conflicts: libzorpll-dev
 Replaces: libzorpll-dev
 Description: Low level library functions for Zorp, development files
@@ -35,11 +35,11 @@ Description: Low level library functions for Zorp, development files
  This package contains the development files necessary to create programs
  based on libzorpll.
 
-Package: libzorpll7.0-6-memtrace
+Package: libzorpll7.0-7-memtrace
 Section: debug
 Architecture: any
 Priority: extra
-Depends: libzorpll7.0-6 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Depends: libzorpll7.0-7 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Low level library functions for Zorp, debug version
  Zorp is a new generation firewall. It is essentially a transparent proxy
  firewall, with strict protocol analyzing proxies, a modular architecture,
